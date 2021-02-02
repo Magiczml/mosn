@@ -32,8 +32,10 @@ func TestWasmManagerBasic(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	instance := mock.NewMockWasmInstance(ctrl)
+	instance.EXPECT().Start().AnyTimes().Return(nil)
 	module := mock.NewMockWasmModule(ctrl)
-	module.EXPECT().NewInstance().AnyTimes().Return(mock.NewMockWasmInstance(ctrl))
+	module.EXPECT().NewInstance().AnyTimes().Return(instance)
 	engine := mock.NewMockWasmVM(ctrl)
 	engine.EXPECT().NewModule(gomock.Any()).AnyTimes().Return(module)
 
@@ -82,7 +84,9 @@ func TestWasmManagerDiffVmConfig(t *testing.T) {
 	module := mock.NewMockWasmModule(ctrl)
 	module.EXPECT().NewInstance().AnyTimes().DoAndReturn(func() types.WasmInstance {
 		newInstanceCount++
-		return mock.NewMockWasmInstance(ctrl)
+		instance := mock.NewMockWasmInstance(ctrl)
+		instance.EXPECT().Start().AnyTimes().Return(nil)
+		return instance
 	})
 	engine := mock.NewMockWasmVM(ctrl)
 	engine.EXPECT().NewModule(gomock.Any()).AnyTimes().DoAndReturn(func([]byte) types.WasmModule {
@@ -122,7 +126,9 @@ func TestWasmManagerInstanceNum(t *testing.T) {
 	module := mock.NewMockWasmModule(ctrl)
 	module.EXPECT().NewInstance().AnyTimes().DoAndReturn(func() types.WasmInstance {
 		newInstanceCount++
-		return mock.NewMockWasmInstance(ctrl)
+		instance := mock.NewMockWasmInstance(ctrl)
+		instance.EXPECT().Start().AnyTimes().Return(nil)
+		return instance
 	})
 	engine := mock.NewMockWasmVM(ctrl)
 	engine.EXPECT().NewModule(gomock.Any()).AnyTimes().Return(module)

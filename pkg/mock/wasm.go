@@ -400,6 +400,34 @@ func (m *MockWasmInstanceWrapper) EXPECT() *MockWasmInstanceWrapperMockRecorder 
 	return m.recorder
 }
 
+// RegisterFunc mocks base method.
+func (m *MockWasmInstanceWrapper) RegisterFunc(namespace, funcName string, f interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegisterFunc", namespace, funcName, f)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RegisterFunc indicates an expected call of RegisterFunc.
+func (mr *MockWasmInstanceWrapperMockRecorder) RegisterFunc(namespace, funcName, f interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterFunc", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).RegisterFunc), namespace, funcName, f)
+}
+
+// Start mocks base method.
+func (m *MockWasmInstanceWrapper) Start() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Start")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Start indicates an expected call of Start.
+func (mr *MockWasmInstanceWrapperMockRecorder) Start() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).Start))
+}
+
 // GetExportsFunc mocks base method.
 func (m *MockWasmInstanceWrapper) GetExportsFunc(funcName string) (types.WasmFunction, error) {
 	m.ctrl.T.Helper()
@@ -530,18 +558,6 @@ func (m *MockWasmInstanceWrapper) Malloc(size int32) (uint64, error) {
 func (mr *MockWasmInstanceWrapperMockRecorder) Malloc(size interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Malloc", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).Malloc), size)
-}
-
-// RegisterFunc mocks base method.
-func (m *MockWasmInstanceWrapper) RegisterFunc(namespace, funcName string, f interface{}) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RegisterFunc", namespace, funcName, f)
-}
-
-// RegisterFunc indicates an expected call of RegisterFunc.
-func (mr *MockWasmInstanceWrapperMockRecorder) RegisterFunc(namespace, funcName, f interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterFunc", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).RegisterFunc), namespace, funcName, f)
 }
 
 // GetData mocks base method.
@@ -715,6 +731,34 @@ func (m *MockWasmInstance) EXPECT() *MockWasmInstanceMockRecorder {
 	return m.recorder
 }
 
+// RegisterFunc mocks base method.
+func (m *MockWasmInstance) RegisterFunc(namespace, funcName string, f interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegisterFunc", namespace, funcName, f)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RegisterFunc indicates an expected call of RegisterFunc.
+func (mr *MockWasmInstanceMockRecorder) RegisterFunc(namespace, funcName, f interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterFunc", reflect.TypeOf((*MockWasmInstance)(nil).RegisterFunc), namespace, funcName, f)
+}
+
+// Start mocks base method.
+func (m *MockWasmInstance) Start() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Start")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Start indicates an expected call of Start.
+func (mr *MockWasmInstanceMockRecorder) Start() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockWasmInstance)(nil).Start))
+}
+
 // GetExportsFunc mocks base method.
 func (m *MockWasmInstance) GetExportsFunc(funcName string) (types.WasmFunction, error) {
 	m.ctrl.T.Helper()
@@ -845,18 +889,6 @@ func (m *MockWasmInstance) Malloc(size int32) (uint64, error) {
 func (mr *MockWasmInstanceMockRecorder) Malloc(size interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Malloc", reflect.TypeOf((*MockWasmInstance)(nil).Malloc), size)
-}
-
-// RegisterFunc mocks base method.
-func (m *MockWasmInstance) RegisterFunc(namespace, funcName string, f interface{}) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "RegisterFunc", namespace, funcName, f)
-}
-
-// RegisterFunc indicates an expected call of RegisterFunc.
-func (mr *MockWasmInstanceMockRecorder) RegisterFunc(namespace, funcName, f interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterFunc", reflect.TypeOf((*MockWasmInstance)(nil).RegisterFunc), namespace, funcName, f)
 }
 
 // GetData mocks base method.

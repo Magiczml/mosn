@@ -189,11 +189,14 @@ func (w *wasmPluginImpl) EnsureInstanceNum(num int) int {
 
 	if num < w.instanceNum {
 		w.lock.Lock()
+
 		for i := num; i < len(w.instanceWrappers); i++ {
 			w.instanceWrappers[i] = nil
 		}
+
 		w.instanceWrappers = w.instanceWrappers[:num]
 		w.instanceNum = num
+
 		w.lock.Unlock()
 	} else {
 		newInstance := make([]types.WasmInstanceWrapper, 0)
@@ -205,12 +208,21 @@ func (w *wasmPluginImpl) EnsureInstanceNum(num int) int {
 				log.DefaultLogger.Errorf("[wasm][plugin] EnsureInstanceNum fail to create instance, i: %v", i)
 				continue
 			}
+
+			err := instance.Start()
+			if err != nil {
+				log.DefaultLogger.Errorf("[wasm][plugin] EnsureInstanceNum fail to start instance, i: %v, err: %v", i, err)
+				continue
+			}
+
 			newInstance = append(newInstance, &wasmInstanceWrapperImpl{WasmInstance: instance})
 		}
 
 		w.lock.Lock()
+
 		w.instanceWrappers = append(w.instanceWrappers, newInstance...)
 		w.instanceNum += len(newInstance)
+
 		w.lock.Unlock()
 	}
 

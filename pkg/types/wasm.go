@@ -130,6 +130,12 @@ type WasmModule interface {
 
 // WasmInstance represents the wasm instance
 type WasmInstance interface {
+	// RegisterFunc registers a func to the wasm instance, should be called before Start()
+	RegisterFunc(namespace string, funcName string, f interface{}) error
+
+	// Start starts the wasm instance
+	Start() error
+
 	// GetExportsFunc returns the exported func of the wasm instance
 	GetExportsFunc(funcName string) (WasmFunction, error)
 
@@ -156,9 +162,6 @@ type WasmInstance interface {
 
 	// Malloc allocates size of mem from wasm default memory
 	Malloc(size int32) (uint64, error)
-
-	// RegisterFunc registers a func to the wasm instance
-	RegisterFunc(namespace string, funcName string, f interface{})
 
 	// GetData returns user-defined data
 	GetData() interface{}

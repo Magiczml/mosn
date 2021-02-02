@@ -36,8 +36,8 @@ type ABI interface {
 	// life-cycle: OnInstanceCreate got called when instantiating the wasm instance
 	OnInstanceCreate(instance types.WasmInstance)
 
-	// life-cycle: OnStart got called when starting the wasm instance
-	OnStart(instance types.WasmInstance)
+	// life-cycle: OnInstanceStart got called when starting the wasm instance
+	OnInstanceStart(instance types.WasmInstance)
 
 	// life-cycle: OnInstanceDestroy got called when destroying the wasm instance
 	OnInstanceDestroy(instance types.WasmInstance)

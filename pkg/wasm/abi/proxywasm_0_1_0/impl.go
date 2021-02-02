@@ -38,14 +38,6 @@ func (a *abiImpl) SetInstance(instance types.WasmInstance) {
 	a.instance = instance
 }
 
-func (a *abiImpl) OnStart(instance types.WasmInstance) {
-	return
-}
-
-func (a *abiImpl) OnInstanceDestroy(instance types.WasmInstance) {
-	return
-}
-
 func (a *abiImpl) OnInstanceCreate(instance types.WasmInstance) {
 	instance.RegisterFunc("env", "proxy_log", proxyLog)
 
@@ -89,5 +81,13 @@ func (a *abiImpl) OnInstanceCreate(instance types.WasmInstance) {
 	instance.RegisterFunc("env", "proxy_get_shared_data", proxyGetSharedData)
 	instance.RegisterFunc("env", "proxy_set_shared_data", proxySetSharedData)
 
+	return
+}
+
+func (a *abiImpl) OnInstanceStart(instance types.WasmInstance) {
+	return
+}
+
+func (a *abiImpl) OnInstanceDestroy(instance types.WasmInstance) {
 	return
 }

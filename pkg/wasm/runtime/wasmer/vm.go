@@ -55,12 +55,5 @@ func (w *VM) NewModule(wasmBytes []byte) types.WasmModule {
 		return nil
 	}
 
-	module := &Module{
-		vm:     w,
-		module: m,
-	}
-
-	module.Init()
-
-	return module
+	return NewWasmerModule(w, m)
 }

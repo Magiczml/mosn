@@ -21,19 +21,43 @@ import (
 	"strings"
 
 	wasmerGo "github.com/wasmerio/wasmer-go/wasmer"
-	"mosn.io/mosn/pkg/log"
 	"mosn.io/mosn/pkg/types"
 	"mosn.io/mosn/pkg/wasm/abi"
 )
 
 type Module struct {
-	vm           *VM
-	module       *wasmerGo.Module
-	importObject *wasmerGo.ImportObject
+	vm            *VM
+	module        *wasmerGo.Module
+	abiList       []abi.ABI
+	moduleImports []moduleImport
+}
+
+type moduleImport struct {
+	namespace string
+	funcName  string
+	f         *wasmerGo.Function
+}
+
+func NewWasmerModule(vm *VM, module *wasmerGo.Module) *Module {
+	m := &Module{
+		vm:            vm,
+		module:        module,
+		moduleImports: make([]moduleImport, 0),
+	}
+
+	m.Init()
+
+	return m
 }
 
 func (w *Module) Init() {
+	w.ensureWASIImports()
+	w.abiList = w.GetABIList()
 	return
+}
+
+func (w *Module) NewInstance() types.WasmInstance {
+	return NewWasmerInstance(w.vm, w)
 }
 
 func (w *Module) GetABIList() []abi.ABI {
@@ -56,32 +80,25 @@ func (w *Module) GetABIList() []abi.ABI {
 	return abiList
 }
 
-func (w *Module) NewInstance() types.WasmInstance {
-	abiList := w.GetABIList()
+func (w *Module) ensureWASIImports() {
+	importList := w.module.Imports()
 
-	res := NewWasmerInstance(w.vm, w.module)
+	for _, im := range importList {
+		if im.Type().Kind() == wasmerGo.FUNCTION && im.Module() == "wasi_unstable" {
 
-	for _, v := range abiList {
-		v.OnInstanceCreate(res)
+			fType := im.Type().IntoFunctionType()
+
+			f := wasmerGo.NewFunction(w.vm.store, wasmerGo.NewFunctionType(fType.Params(), fType.Results()),
+				func(values []wasmerGo.Value) ([]wasmerGo.Value, error) {
+					return nil, nil
+				},
+			)
+
+			w.moduleImports = append(w.moduleImports, moduleImport{
+				namespace: "wasi_unstable",
+				funcName:  im.Name(),
+				f:         f,
+			})
+		}
 	}
-
-	instance, err := wasmerGo.NewInstance(w.module, res.importObject)
-	if err != nil {
-		log.DefaultLogger.Errorf("[wasmer][module] new Wasmer Instance, failed to instantiate the module, err: %v", err)
-		return nil
-	}
-
-	res.instance = instance
-
-	err = res.Start()
-	if err != nil {
-		log.DefaultLogger.Errorf("[wasmer][module] new Wasmer Instance, fail to call Start(), err: %v", err)
-		return nil
-	}
-
-	for _, v := range abiList {
-		v.OnStart(res)
-	}
-
-	return res
 }
