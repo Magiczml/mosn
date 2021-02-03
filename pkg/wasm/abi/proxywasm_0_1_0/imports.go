@@ -18,8 +18,6 @@
 package proxywasm_0_1_0
 
 import (
-	"encoding/binary"
-
 	"mosn.io/api"
 	"mosn.io/mosn/pkg/log"
 	"mosn.io/mosn/pkg/types"
@@ -195,32 +193,6 @@ func proxyGetHeaderMapPairs(instance types.WasmInstance, mapType int32, returnDa
 	return WasmResultOk.Int32()
 }
 
-// unmarshal map from rawData
-func unmarshalMap(rawData []byte) map[string]string {
-	if len(rawData) < 4 {
-		return nil
-	}
-	res := make(map[string]string)
-	headerSize := binary.LittleEndian.Uint32(rawData[0:4])
-	p := 4 + (4+4)*headerSize // headerSize + (key1_size + value1_size) * headerSize
-	if int(p) >= len(rawData) {
-		return nil
-	}
-	for i := 0; i < int(headerSize); i++ {
-		lenIndex := 4 + (4+4)*i
-		keySize := binary.LittleEndian.Uint32(rawData[lenIndex : lenIndex+4])
-		valueSize := binary.LittleEndian.Uint32(rawData[lenIndex+4 : lenIndex+8])
-		key := string(rawData[p : p+keySize])
-		p += keySize
-		p++ // 0
-		value := string(rawData[p : p+valueSize])
-		p += valueSize
-		p++ // 0
-		res[key] = value
-	}
-	return res
-}
-
 func proxySetHeaderMapPairs(instance types.WasmInstance, mapType int32, ptr int32, size int32) int32 {
 	if MapType(mapType) > MapTypeMax {
 		return WasmResultBadArgument.Int32()
@@ -236,7 +208,7 @@ func proxySetHeaderMapPairs(instance types.WasmInstance, mapType int32, ptr int3
 		return WasmResultInvalidMemoryAccess.Int32()
 	}
 
-	newMap := unmarshalMap(newMapContent)
+	newMap := DecodeMap(newMapContent)
 
 	for k, v := range newMap {
 		headerMap.Set(k, v)

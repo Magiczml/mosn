@@ -19,38 +19,68 @@ package x_proxy_wasm
 
 import (
 	"encoding/json"
+	"errors"
+	"runtime"
 
 	v2 "mosn.io/mosn/pkg/config/v2"
+	"mosn.io/mosn/pkg/log"
 )
 
 type filterConfig struct {
-	FromWasmPlugin string           `json:"from_wasm_plugin,omitempty"`
-	VmConfig       *v2.WasmVmConfig `json:"vm_config,omitempty"`
-	InstanceNum    int              `json:"instance_num,omitempty"`
-	RootContextID  int32            `json:"root_context_id, omitempty"`
-	pluginConfig
-}
-
-type pluginConfig struct {
-	UserConfig1 string `json:"user_config1,omitempty"`
-	UserConfig2 string `json:"user_config2,omitempty"`
+	FromWasmPlugin string            `json:"from_wasm_plugin,omitempty"`
+	VmConfig       *v2.WasmVmConfig  `json:"vm_config,omitempty"`
+	InstanceNum    int               `json:"instance_num,omitempty"`
+	RootContextID  int32             `json:"root_context_id, omitempty"`
+	UserData       map[string]string `json:"-"`
 }
 
 func parseFilterConfig(cfg map[string]interface{}) (*filterConfig, error) {
-	var filterConfig filterConfig
+	config := filterConfig{
+		UserData: make(map[string]string),
+	}
 
 	data, err := json.Marshal(cfg["config"])
 	if err != nil {
 		return nil, err
 	}
 
-	if err := json.Unmarshal(data, &filterConfig); err != nil {
+	if err := json.Unmarshal(data, &config); err != nil {
+		log.DefaultLogger.Errorf("[x-proxy-wasm][config] fail to unmarshal filter config, err: %v", err)
 		return nil, err
 	}
 
-	if filterConfig.FromWasmPlugin != "" {
-		filterConfig.VmConfig = nil
+	if config.FromWasmPlugin != "" {
+		config.VmConfig = nil
+		config.InstanceNum = 0
+	} else {
+		if config.VmConfig == nil {
+			log.DefaultLogger.Errorf("[x-proxy-wasm][config] fail to parse vm config")
+			return nil, errors.New("fail to parse vm config")
+		}
+		if config.InstanceNum <= 0 {
+			config.InstanceNum = runtime.NumCPU()
+		}
 	}
 
-	return &filterConfig, nil
+	m := make(map[string]interface{})
+
+	if err := json.Unmarshal(data, &m); err != nil {
+		log.DefaultLogger.Errorf("[x-proxy-wasm][config] fail to unmarshal user data, err: %v", err)
+		return nil, err
+	}
+
+	for k, v := range m {
+		if _, ok := v.(string); !ok {
+			delete(m, k)
+		}
+	}
+	delete(m, "from_wasm_plugin")
+	if len(m) > 0 {
+		config.UserData = make(map[string]string, len(m))
+		for k, v := range m {
+			config.UserData[k] = v.(string)
+		}
+	}
+
+	return &config, nil
 }

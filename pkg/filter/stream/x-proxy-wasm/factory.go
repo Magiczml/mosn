@@ -19,8 +19,9 @@ package x_proxy_wasm
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
+	"fmt"
+	"reflect"
 
 	"mosn.io/api"
 	v2 "mosn.io/mosn/pkg/config/v2"
@@ -78,9 +79,7 @@ func createProxyWasmFilterFactory(conf map[string]interface{}) (api.StreamFilter
 		return nil, errors.New("plugin not found")
 	}
 
-	if config.FromWasmPlugin == "" {
-		config.VmConfig = pw.GetConfig().VmConfig
-	}
+	config.VmConfig = pw.GetConfig().VmConfig
 
 	factory := &FilterConfigFactory{
 		pluginName: pluginName,
@@ -92,32 +91,38 @@ func createProxyWasmFilterFactory(conf map[string]interface{}) (api.StreamFilter
 	return factory, nil
 }
 
-func configSize(config interface{}) int {
-	b, err := json.Marshal(config)
-	if err != nil {
-		return 0
-	}
-	return len(b)
-}
-
 func (f *FilterConfigFactory) CreateFilterChain(context context.Context, callbacks api.StreamFilterChainFactoryCallbacks) {
-	filter := NewFilter(context, f.pluginName, f.config.RootContextID)
+	filter := NewFilter(context, f.pluginName, f.config.RootContextID, f)
 
 	callbacks.AddStreamReceiverFilter(filter, api.BeforeRoute)
 	callbacks.AddStreamSenderFilter(filter, api.BeforeSend)
 }
 
 func (f *FilterConfigFactory) GetVmConfig() buffer.IoBuffer {
-	b, err := json.Marshal(f.config.VmConfig)
-	if err != nil {
+	vmConfig := *f.config.VmConfig
+	typeOf := reflect.TypeOf(vmConfig)
+	valueOf := reflect.ValueOf(&vmConfig).Elem()
+
+	if typeOf.Kind() != reflect.Struct || typeOf.NumField() == 0 {
 		return nil
 	}
+
+	m := make(map[string]string)
+	for i := 0; i < typeOf.NumField(); i++ {
+		m[typeOf.Field(i).Name] = fmt.Sprintf("%v", valueOf.Field(i).Interface())
+	}
+
+	b := proxywasm_0_1_0.EncodeMap(m)
+	if b == nil {
+		return nil
+	}
+
 	return buffer.NewIoBufferBytes(b)
 }
 
 func (f *FilterConfigFactory) GetPluginConfig() buffer.IoBuffer {
-	b, err := json.Marshal(f.config.pluginConfig)
-	if err != nil {
+	b := proxywasm_0_1_0.EncodeMap(f.config.UserData)
+	if b == nil {
 		return nil
 	}
 	return buffer.NewIoBufferBytes(b)
@@ -143,8 +148,8 @@ func (f *FilterConfigFactory) OnPluginStart(plugin types.WasmPlugin) {
 		exports := abiVersion.(proxywasm_0_1_0.Exports)
 
 		_ = exports.ProxyOnContextCreate(f.config.RootContextID, 0)
-		_, _ = exports.ProxyOnConfigure(f.config.RootContextID, int32(configSize(f.config.pluginConfig)))
-		_, _ = exports.ProxyOnVmStart(f.config.RootContextID, int32(configSize(f.config.VmConfig)))
+		_, _ = exports.ProxyOnConfigure(f.config.RootContextID, 0)
+		_, _ = exports.ProxyOnVmStart(f.config.RootContextID, 0)
 
 		return true
 	})

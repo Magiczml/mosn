@@ -71,7 +71,7 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 	configMap := map[string]interface{}{
 		"type": "x-proxy-wasm",
 		"config": map[string]interface{}{
-			"instance_num": 4,
+			"instance_num": 2,
 			"vm_config": map[string]interface{}{
 				"engine": "wasmer",
 				"path":   "./data/test.wasm",
@@ -92,7 +92,7 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 5; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

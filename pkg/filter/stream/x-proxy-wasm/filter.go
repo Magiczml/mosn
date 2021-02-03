@@ -19,7 +19,6 @@ package x_proxy_wasm
 
 import (
 	"context"
-	"encoding/json"
 	"sync"
 	"sync/atomic"
 
@@ -34,6 +33,8 @@ import (
 
 type Filter struct {
 	ctx context.Context
+
+	factory *FilterConfigFactory
 
 	pluginName string
 	plugin     types.WasmPlugin
@@ -61,7 +62,7 @@ type Filter struct {
 
 var contextIDGenerator int32
 
-func NewFilter(ctx context.Context, pluginName string, rootContextID int32) *Filter {
+func NewFilter(ctx context.Context, pluginName string, rootContextID int32, factory *FilterConfigFactory) *Filter {
 	abiVersion := abi.GetABI("proxy_abi_version_0_1_0")
 	if abiVersion == nil {
 		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] NewFilter abi version not found")
@@ -80,6 +81,7 @@ func NewFilter(ctx context.Context, pluginName string, rootContextID int32) *Fil
 
 	filter := &Filter{
 		ctx:           ctx,
+		factory:       factory,
 		pluginName:    pluginName,
 		plugin:        plugin,
 		instance:      instance,
@@ -167,21 +169,11 @@ func (f *Filter) Append(ctx context.Context, headers api.HeaderMap, buf buffer.I
 }
 
 func (f *Filter) GetVmConfig() buffer.IoBuffer {
-	vmConfig := f.plugin.GetVmConfig()
-	vmConfigBytes, err := json.Marshal(vmConfig)
-	if err != nil {
-		return nil
-	}
-	return buffer.NewIoBufferBytes(vmConfigBytes)
+	return f.factory.GetVmConfig()
 }
 
 func (f *Filter) GetPluginConfig() buffer.IoBuffer {
-	pluginConfig := f.plugin.GetPluginConfig()
-	pluginConfigBytes, err := json.Marshal(pluginConfig)
-	if err != nil {
-		return nil
-	}
-	return buffer.NewIoBufferBytes(pluginConfigBytes)
+	return f.factory.GetPluginConfig()
 }
 
 func (f *Filter) Log(level log.Level, msg string) {
