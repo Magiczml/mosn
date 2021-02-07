@@ -30,36 +30,41 @@ func NewInstance(module *Module, imports *ImportObject) (*Instance, error) {
 		return nil, err
 	}
 
-	instance := C.wasm_instance_new(
-		module.store.inner(),
-		module.inner(),
-		externs,
-		&traps,
-	)
+	var instance *C.wasm_instance_t
+
+	err2 := maybeNewErrorFromWasmer(func() bool {
+		instance = C.wasm_instance_new(
+			module.store.inner(),
+			module.inner(),
+			externs,
+			&traps,
+		)
+
+		return traps == nil && instance == nil
+	})
+
+	if err2 != nil {
+		return nil, err2
+	}
 
 	runtime.KeepAlive(module)
 	runtime.KeepAlive(module.store)
 	runtime.KeepAlive(imports)
 
-	if instance == nil {
-		return nil, newErrorFromWasmer()
-	}
-
 	if traps != nil {
-		// TODO(jubianchi): Implement this properly
-		return nil, newErrorWith("trapped! to do")
+		return nil, newErrorFromTrap(traps)
 	}
 
-	output := &Instance{
+	self := &Instance{
 		_inner:  instance,
 		Exports: newExports(instance, module),
 	}
 
-	runtime.SetFinalizer(output, func(self *Instance) {
+	runtime.SetFinalizer(self, func(self *Instance) {
 		C.wasm_instance_delete(self.inner())
 	})
 
-	return output, nil
+	return self, nil
 }
 
 func (self *Instance) inner() *C.wasm_instance_t {
