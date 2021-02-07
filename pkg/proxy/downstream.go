@@ -1401,7 +1401,7 @@ func (s *downStream) resetStream() {
 }
 
 func (s *downStream) sendHijackReply(code int, headers types.HeaderMap) {
-	log.Proxy.Warnf(s.context, "[proxy] [downstream] set hijack reply, proxyId = %d, code = %d, with headers = %t", s.ID, code, headers == nil)
+	log.Proxy.Warnf(s.context, "[proxy] [downstream] set hijack reply, proxyId = %d, code = %d, with headers = %t", s.ID, code, headers != nil)
 	if headers == nil {
 		raw := make(map[string]string, 5)
 		headers = protocol.CommonHeader(raw)

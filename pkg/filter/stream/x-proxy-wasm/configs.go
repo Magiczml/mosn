@@ -39,7 +39,7 @@ func parseFilterConfig(cfg map[string]interface{}) (*filterConfig, error) {
 		UserData: make(map[string]string),
 	}
 
-	data, err := json.Marshal(cfg["config"])
+	data, err := json.Marshal(cfg)
 	if err != nil {
 		return nil, err
 	}

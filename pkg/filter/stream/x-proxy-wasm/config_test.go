@@ -7,13 +7,11 @@ import (
 
 func TestXProxyWasmConfigFromGlobalPlugin(t *testing.T) {
 	configMap := map[string]interface{}{
-		"config": map[string]interface{}{
-			"from_wasm_plugin": "global_plugin",
-			"instance_num":     2,
-			"root_context_id":  1,
-			"user_config1":     "user_value1",
-			"user_config2":     "user_value2",
-		},
+		"from_wasm_plugin": "global_plugin",
+		"instance_num":     2,
+		"root_context_id":  1,
+		"user_config1":     "user_value1",
+		"user_config2":     "user_value2",
 	}
 
 	config, err := parseFilterConfig(configMap)
@@ -25,11 +23,9 @@ func TestXProxyWasmConfigFromGlobalPlugin(t *testing.T) {
 
 func TestXProxyWasmConfigWithoutUserData(t *testing.T) {
 	configMap := map[string]interface{}{
-		"config": map[string]interface{}{
-			"from_wasm_plugin": "global_plugin",
-			"instance_num":     2,
-			"root_context_id":  1,
-		},
+		"from_wasm_plugin": "global_plugin",
+		"instance_num":     2,
+		"root_context_id":  1,
 	}
 
 	config, err := parseFilterConfig(configMap)
@@ -41,19 +37,17 @@ func TestXProxyWasmConfigWithoutUserData(t *testing.T) {
 
 func TestXProxyWasmConfigWithVM(t *testing.T) {
 	configMap := map[string]interface{}{
-		"config": map[string]interface{}{
-			"vm_config": map[string]interface{}{
-				"engine": "wasmer",
-				"path":   "path",
-				"cpu":    100,
-			},
-			"instance_num":    2,
-			"root_context_id": 1,
-			"user_config1":    "user_value1",
-			"user_config2":    "user_value2",
-			"user_config3":    "user_value3",
-			"user_config4":    "user_value4",
+		"vm_config": map[string]interface{}{
+			"engine": "wasmer",
+			"path":   "path",
+			"cpu":    100,
 		},
+		"instance_num":    2,
+		"root_context_id": 1,
+		"user_config1":    "user_value1",
+		"user_config2":    "user_value2",
+		"user_config3":    "user_value3",
+		"user_config4":    "user_value4",
 	}
 
 	config, err := parseFilterConfig(configMap)

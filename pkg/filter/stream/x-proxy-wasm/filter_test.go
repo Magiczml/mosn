@@ -69,19 +69,16 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 	defer ctrl.Finish()
 
 	configMap := map[string]interface{}{
-		"type": "x-proxy-wasm",
-		"config": map[string]interface{}{
-			"instance_num": 2,
-			"vm_config": map[string]interface{}{
-				"engine": "wasmer",
-				"path":   "./data/test.wasm",
-				"cpu":    50,
-				"mem":    50,
-			},
-			"root_context_id": 1,
-			"user_config1":    "user_value1",
-			"user_config2":    "user_value2",
+		"instance_num": 2,
+		"vm_config": map[string]interface{}{
+			"engine": "wasmer",
+			"path":   "./data/test.wasm",
+			"cpu":    50,
+			"mem":    50,
 		},
+		"root_context_id": 1,
+		"user_config1":    "user_value1",
+		"user_config2":    "user_value2",
 	}
 
 	factory, err := createProxyWasmFilterFactory(configMap)
@@ -112,14 +109,25 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 
 			factory.CreateFilterChain(context.TODO(), cb)
 
-			// for coverage
-			rFilter.SetReceiveFilterHandler(nil)
-			sFilter.SetSenderFilterHandler(nil)
-
 			reqHeaderMap := mockHeaderMap(ctrl)
+			reqBody := buffer.NewIoBufferString("request body")
 
-			rFilter.OnReceive(context.TODO(), reqHeaderMap, buffer.NewIoBufferString("request body"), nil)
-			sFilter.Append(context.TODO(), nil, buffer.NewIoBufferString("response body"), nil)
+			receiverHandler := mock.NewMockStreamReceiverFilterHandler(ctrl)
+			receiverHandler.EXPECT().GetRequestHeaders().AnyTimes().Return(reqHeaderMap)
+			receiverHandler.EXPECT().GetRequestData().AnyTimes().Return(reqBody)
+			receiverHandler.EXPECT().GetRequestTrailers().AnyTimes().Return(nil)
+
+			respBody := buffer.NewIoBufferString("response body")
+
+			senderHandler := mock.NewMockStreamSenderFilterHandler(ctrl)
+			senderHandler.EXPECT().GetResponseData().AnyTimes().Return(respBody)
+
+			// for coverage
+			rFilter.SetReceiveFilterHandler(receiverHandler)
+			sFilter.SetSenderFilterHandler(senderHandler)
+
+			rFilter.OnReceive(context.TODO(), reqHeaderMap, reqBody, nil)
+			sFilter.Append(context.TODO(), nil, respBody, nil)
 
 			rFilter.OnDestroy()
 			sFilter.OnDestroy()

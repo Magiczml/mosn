@@ -49,14 +49,6 @@ type Filter struct {
 	receiverFilterHandler api.StreamReceiverFilterHandler
 	senderFilterHandler   api.StreamSenderFilterHandler
 
-	reqHeader  api.HeaderMap
-	reqBody    buffer.IoBuffer
-	reqTrailer api.HeaderMap
-
-	respHeader  api.HeaderMap
-	respBody    buffer.IoBuffer
-	respTrailer api.HeaderMap
-
 	destroyOnce sync.Once
 }
 
@@ -119,10 +111,6 @@ func (f *Filter) SetSenderFilterHandler(handler api.StreamSenderFilterHandler) {
 }
 
 func (f *Filter) OnReceive(ctx context.Context, headers api.HeaderMap, buf buffer.IoBuffer, trailers api.HeaderMap) api.StreamFilterStatus {
-	f.reqHeader = headers
-	f.reqBody = buf
-	f.reqTrailer = trailers
-
 	f.instance.Acquire(f)
 	defer f.instance.Release()
 
@@ -144,10 +132,6 @@ func (f *Filter) OnReceive(ctx context.Context, headers api.HeaderMap, buf buffe
 }
 
 func (f *Filter) Append(ctx context.Context, headers api.HeaderMap, buf buffer.IoBuffer, trailers api.HeaderMap) api.StreamFilterStatus {
-	f.respHeader = headers
-	f.respBody = buf
-	f.respTrailer = trailers
-
 	f.instance.Acquire(f)
 	defer f.instance.Release()
 
@@ -196,25 +180,43 @@ func (f *Filter) Log(level log.Level, msg string) {
 }
 
 func (f *Filter) GetHttpRequestHeader() api.HeaderMap {
-	return f.reqHeader
+	if f.receiverFilterHandler == nil {
+		return nil
+	}
+	return f.receiverFilterHandler.GetRequestHeaders()
 }
 
 func (f *Filter) GetHttpRequestBody() buffer.IoBuffer {
-	return f.reqBody
+	if f.receiverFilterHandler == nil {
+		return nil
+	}
+	return f.receiverFilterHandler.GetRequestData()
 }
 
 func (f *Filter) GetHttpRequestTrailer() api.HeaderMap {
-	return f.reqTrailer
+	if f.receiverFilterHandler == nil {
+		return nil
+	}
+	return f.receiverFilterHandler.GetRequestTrailers()
 }
 
 func (f *Filter) GetHttpResponseHeader() api.HeaderMap {
-	return f.respHeader
+	if f.senderFilterHandler == nil {
+		return nil
+	}
+	return f.senderFilterHandler.GetResponseHeaders()
 }
 
 func (f *Filter) GetHttpResponseBody() buffer.IoBuffer {
-	return f.respBody
+	if f.senderFilterHandler == nil {
+		return nil
+	}
+	return f.senderFilterHandler.GetResponseData()
 }
 
 func (f *Filter) GetHttpResponseTrailer() api.HeaderMap {
-	return f.respTrailer
+	if f.senderFilterHandler == nil {
+		return nil
+	}
+	return f.senderFilterHandler.GetResponseTrailers()
 }
