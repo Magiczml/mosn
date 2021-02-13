@@ -39,6 +39,10 @@ func NewWasmerVM() types.WasmVM {
 	return vm
 }
 
+func (w *VM) Name() string {
+	return "wasmer"
+}
+
 func (w *VM) Init() {
 	w.engine = wasmerGo.NewEngine()
 	w.store = wasmerGo.NewStore(w.engine)

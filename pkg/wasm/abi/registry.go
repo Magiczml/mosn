@@ -20,42 +20,65 @@ package abi
 import (
 	"sync"
 
+	"mosn.io/mosn/pkg/log"
 	"mosn.io/mosn/pkg/types"
 )
 
 // Factory is the ABI factory func
-type Factory func() ABI
+type Factory func(instance types.WasmInstance) types.ABI
 
 // string -> Factory
 var abiMap = sync.Map{}
 
-// ABI represents the abi between the host and wasm, which consists of two parts: exports and life-cycle handler
-// *exports* represents the exports elements of the wasm module
-// *life-cycle handler* is used to manage the life-cycle of an abi
-type ABI interface {
-	// life-cycle: OnInstanceCreate got called when instantiating the wasm instance
-	OnInstanceCreate(instance types.WasmInstance)
-
-	// life-cycle: OnInstanceStart got called when starting the wasm instance
-	OnInstanceStart(instance types.WasmInstance)
-
-	// life-cycle: OnInstanceDestroy got called when destroying the wasm instance
-	OnInstanceDestroy(instance types.WasmInstance)
-
-	// life-cycle: SetInstance sets the wasm instance to the abi
-	SetInstance(instance types.WasmInstance)
-}
-
 // RegisterABI registers an abi factory
-func RegisterABI(abiName string, factory Factory) {
-	abiMap.Store(abiName, factory)
+func RegisterABI(name string, factory Factory) {
+	abiMap.Store(name, factory)
 }
 
-// GetABI returns an abi by name
-func GetABI(abiName string) ABI {
-	if v, ok := abiMap.Load(abiName); ok {
-		factory := v.(Factory)
-		return factory()
+func GetABI(instance types.WasmInstance, name string) types.ABI {
+	if instance == nil || name == "" {
+		log.DefaultLogger.Errorf("[abi][registry] GetABI invalid param, name: %v, instance: %v", name, instance)
+		return nil
 	}
+
+	v, ok := abiMap.Load(name)
+	if !ok {
+		log.DefaultLogger.Errorf("[abi][registry] GetABI not found in registry, name: %v", name)
+		return nil
+	}
+
+	abiNameList := instance.GetModule().GetABINameList()
+	for _, abi := range abiNameList {
+		if name == abi {
+			factory := v.(Factory)
+			return factory(instance)
+		}
+	}
+
+	log.DefaultLogger.Errorf("[abi][register] GetABI not found in wasm instance, name: %v", name)
+
 	return nil
+}
+
+func GetABIList(instance types.WasmInstance) []types.ABI {
+	if instance == nil {
+		log.DefaultLogger.Errorf("[abi][registry] GetABIList nil instance: %v", instance)
+		return nil
+	}
+
+	res := make([]types.ABI, 0)
+
+	abiNameList := instance.GetModule().GetABINameList()
+	for _, abiName := range abiNameList {
+		v, ok := abiMap.Load(abiName)
+		if !ok {
+			log.DefaultLogger.Warnf("[abi][registry] GetABIList abi not registered, name: %v", abiName)
+			continue
+		}
+
+		factory := v.(Factory)
+		res = append(res, factory(instance))
+	}
+
+	return res
 }

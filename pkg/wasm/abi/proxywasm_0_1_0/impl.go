@@ -18,20 +18,44 @@
 package proxywasm_0_1_0
 
 import (
+	"mosn.io/mosn/pkg/log"
 	"mosn.io/mosn/pkg/types"
 	"mosn.io/mosn/pkg/wasm/abi"
 )
 
+const ProxyWasmABI_0_1_0 string = "proxy_abi_version_0_1_0"
+
 func init() {
-	abi.RegisterABI("proxy_abi_version_0_1_0", abiImplFactory)
+	abi.RegisterABI(ProxyWasmABI_0_1_0, abiImplFactory)
 }
 
-func abiImplFactory() abi.ABI {
-	return &abiImpl{}
+func abiImplFactory(instance types.WasmInstance) types.ABI {
+	return &abiImpl{
+		instance: instance,
+	}
 }
 
 type abiImpl struct {
+	Exports
+	imports  InstanceCallback
 	instance types.WasmInstance
+}
+
+func (a *abiImpl) GetExports() interface{} {
+	return a.Exports
+}
+
+func (a *abiImpl) SetImports(imports interface{}) {
+	cb, ok := imports.(InstanceCallback)
+	if !ok {
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][impl] SetImports with invalid type")
+		return
+	}
+	a.imports = cb
+}
+
+func (a *abiImpl) Name() string {
+	return ProxyWasmABI_0_1_0
 }
 
 func (a *abiImpl) SetInstance(instance types.WasmInstance) {

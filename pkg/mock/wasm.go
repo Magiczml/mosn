@@ -586,6 +586,20 @@ func (mr *MockWasmInstanceWrapperMockRecorder) SetData(data interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetData", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).SetData), data)
 }
 
+// GetModule mocks base method.
+func (m *MockWasmInstanceWrapper) GetModule() types.WasmModule {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetModule")
+	ret0, _ := ret[0].(types.WasmModule)
+	return ret0
+}
+
+// GetModule indicates an expected call of GetModule.
+func (mr *MockWasmInstanceWrapperMockRecorder) GetModule() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModule", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetModule))
+}
+
 // Acquire mocks base method.
 func (m *MockWasmInstanceWrapper) Acquire(data interface{}) {
 	m.ctrl.T.Helper()
@@ -631,6 +645,20 @@ func NewMockWasmVM(ctrl *gomock.Controller) *MockWasmVM {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockWasmVM) EXPECT() *MockWasmVMMockRecorder {
 	return m.recorder
+}
+
+// Name mocks base method.
+func (m *MockWasmVM) Name() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Name")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Name indicates an expected call of Name.
+func (mr *MockWasmVMMockRecorder) Name() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockWasmVM)(nil).Name))
 }
 
 // Init mocks base method.
@@ -706,6 +734,20 @@ func (m *MockWasmModule) NewInstance() types.WasmInstance {
 func (mr *MockWasmModuleMockRecorder) NewInstance() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewInstance", reflect.TypeOf((*MockWasmModule)(nil).NewInstance))
+}
+
+// GetABINameList mocks base method.
+func (m *MockWasmModule) GetABINameList() []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetABINameList")
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// GetABINameList indicates an expected call of GetABINameList.
+func (mr *MockWasmModuleMockRecorder) GetABINameList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetABINameList", reflect.TypeOf((*MockWasmModule)(nil).GetABINameList))
 }
 
 // MockWasmInstance is a mock of WasmInstance interface.
@@ -917,6 +959,20 @@ func (mr *MockWasmInstanceMockRecorder) SetData(data interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetData", reflect.TypeOf((*MockWasmInstance)(nil).SetData), data)
 }
 
+// GetModule mocks base method.
+func (m *MockWasmInstance) GetModule() types.WasmModule {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetModule")
+	ret0, _ := ret[0].(types.WasmModule)
+	return ret0
+}
+
+// GetModule indicates an expected call of GetModule.
+func (mr *MockWasmInstanceMockRecorder) GetModule() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModule", reflect.TypeOf((*MockWasmInstance)(nil).GetModule))
+}
+
 // MockWasmFunction is a mock of WasmFunction interface.
 type MockWasmFunction struct {
 	ctrl     *gomock.Controller
@@ -957,4 +1013,162 @@ func (m *MockWasmFunction) Call(args ...interface{}) (interface{}, error) {
 func (mr *MockWasmFunctionMockRecorder) Call(args ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Call", reflect.TypeOf((*MockWasmFunction)(nil).Call), args...)
+}
+
+// MockABI is a mock of ABI interface.
+type MockABI struct {
+	ctrl     *gomock.Controller
+	recorder *MockABIMockRecorder
+}
+
+// MockABIMockRecorder is the mock recorder for MockABI.
+type MockABIMockRecorder struct {
+	mock *MockABI
+}
+
+// NewMockABI creates a new mock instance.
+func NewMockABI(ctrl *gomock.Controller) *MockABI {
+	mock := &MockABI{ctrl: ctrl}
+	mock.recorder = &MockABIMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockABI) EXPECT() *MockABIMockRecorder {
+	return m.recorder
+}
+
+// Name mocks base method.
+func (m *MockABI) Name() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Name")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Name indicates an expected call of Name.
+func (mr *MockABIMockRecorder) Name() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockABI)(nil).Name))
+}
+
+// GetExports mocks base method.
+func (m *MockABI) GetExports() interface{} {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExports")
+	ret0, _ := ret[0].(interface{})
+	return ret0
+}
+
+// GetExports indicates an expected call of GetExports.
+func (mr *MockABIMockRecorder) GetExports() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExports", reflect.TypeOf((*MockABI)(nil).GetExports))
+}
+
+// SetImports mocks base method.
+func (m *MockABI) SetImports(imports interface{}) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetImports", imports)
+}
+
+// SetImports indicates an expected call of SetImports.
+func (mr *MockABIMockRecorder) SetImports(imports interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetImports", reflect.TypeOf((*MockABI)(nil).SetImports), imports)
+}
+
+// OnInstanceCreate mocks base method.
+func (m *MockABI) OnInstanceCreate(instance types.WasmInstance) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnInstanceCreate", instance)
+}
+
+// OnInstanceCreate indicates an expected call of OnInstanceCreate.
+func (mr *MockABIMockRecorder) OnInstanceCreate(instance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnInstanceCreate", reflect.TypeOf((*MockABI)(nil).OnInstanceCreate), instance)
+}
+
+// OnInstanceStart mocks base method.
+func (m *MockABI) OnInstanceStart(instance types.WasmInstance) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnInstanceStart", instance)
+}
+
+// OnInstanceStart indicates an expected call of OnInstanceStart.
+func (mr *MockABIMockRecorder) OnInstanceStart(instance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnInstanceStart", reflect.TypeOf((*MockABI)(nil).OnInstanceStart), instance)
+}
+
+// OnInstanceDestroy mocks base method.
+func (m *MockABI) OnInstanceDestroy(instance types.WasmInstance) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnInstanceDestroy", instance)
+}
+
+// OnInstanceDestroy indicates an expected call of OnInstanceDestroy.
+func (mr *MockABIMockRecorder) OnInstanceDestroy(instance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnInstanceDestroy", reflect.TypeOf((*MockABI)(nil).OnInstanceDestroy), instance)
+}
+
+// MockABIHandler is a mock of ABIHandler interface.
+type MockABIHandler struct {
+	ctrl     *gomock.Controller
+	recorder *MockABIHandlerMockRecorder
+}
+
+// MockABIHandlerMockRecorder is the mock recorder for MockABIHandler.
+type MockABIHandlerMockRecorder struct {
+	mock *MockABIHandler
+}
+
+// NewMockABIHandler creates a new mock instance.
+func NewMockABIHandler(ctrl *gomock.Controller) *MockABIHandler {
+	mock := &MockABIHandler{ctrl: ctrl}
+	mock.recorder = &MockABIHandlerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockABIHandler) EXPECT() *MockABIHandlerMockRecorder {
+	return m.recorder
+}
+
+// OnInstanceCreate mocks base method.
+func (m *MockABIHandler) OnInstanceCreate(instance types.WasmInstance) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnInstanceCreate", instance)
+}
+
+// OnInstanceCreate indicates an expected call of OnInstanceCreate.
+func (mr *MockABIHandlerMockRecorder) OnInstanceCreate(instance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnInstanceCreate", reflect.TypeOf((*MockABIHandler)(nil).OnInstanceCreate), instance)
+}
+
+// OnInstanceStart mocks base method.
+func (m *MockABIHandler) OnInstanceStart(instance types.WasmInstance) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnInstanceStart", instance)
+}
+
+// OnInstanceStart indicates an expected call of OnInstanceStart.
+func (mr *MockABIHandlerMockRecorder) OnInstanceStart(instance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnInstanceStart", reflect.TypeOf((*MockABIHandler)(nil).OnInstanceStart), instance)
+}
+
+// OnInstanceDestroy mocks base method.
+func (m *MockABIHandler) OnInstanceDestroy(instance types.WasmInstance) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "OnInstanceDestroy", instance)
+}
+
+// OnInstanceDestroy indicates an expected call of OnInstanceDestroy.
+func (mr *MockABIHandlerMockRecorder) OnInstanceDestroy(instance interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnInstanceDestroy", reflect.TypeOf((*MockABIHandler)(nil).OnInstanceDestroy), instance)
 }

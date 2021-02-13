@@ -134,18 +134,13 @@ func (f *FilterConfigFactory) OnConfigUpdate(config v2.WasmPluginConfig) {
 }
 
 func (f *FilterConfigFactory) OnPluginStart(plugin types.WasmPlugin) {
-	abiVersion := abi.GetABI("proxy_abi_version_0_1_0")
-	if abiVersion == nil {
-		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] NewFilter abi version not found")
-		return
-	}
-
 	plugin.Exec(func(instanceWrapper types.WasmInstanceWrapper) bool {
-		instanceWrapper.Acquire(f)
-		defer instanceWrapper.Release()
+		a := abi.GetABI(instanceWrapper, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
+		a.SetImports(f)
+		exports := a.GetExports().(proxywasm_0_1_0.Exports)
 
-		abiVersion.SetInstance(instanceWrapper)
-		exports := abiVersion.(proxywasm_0_1_0.Exports)
+		instanceWrapper.Acquire(a)
+		defer instanceWrapper.Release()
 
 		_ = exports.ProxyOnContextCreate(f.config.RootContextID, 0)
 		_, _ = exports.ProxyOnConfigure(f.config.RootContextID, 0)

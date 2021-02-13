@@ -21,6 +21,10 @@ import (
 	v2 "mosn.io/mosn/pkg/config/v2"
 )
 
+//
+//	Manager
+//
+
 // WasmManager managers all wasm configs
 type WasmManager interface {
 	// AddOrUpdateWasm add or update wasm plugin config
@@ -85,7 +89,7 @@ type WasmPlugin interface {
 	ReleaseInstance(instanceWrapper WasmInstanceWrapper)
 
 	// Exec execute the f for each instance
-	Exec(f func(instanceWrapper WasmInstanceWrapper)bool)
+	Exec(f func(instanceWrapper WasmInstanceWrapper) bool)
 
 	// SetCpuLimit set cpu limit of the plugin, not supported currently
 	SetCpuLimit(cpu int)
@@ -110,8 +114,15 @@ type WasmInstanceWrapper interface {
 	Release()
 }
 
+//
+//	VM
+//
+
 // WasmVM represents the wasm vm(engine)
 type WasmVM interface {
+	// Name returns the name of wasm vm(engine)
+	Name() string
+
 	// Init got called when creating a new wasm vm(engine)
 	Init()
 
@@ -126,6 +137,9 @@ type WasmModule interface {
 
 	// NewInstance instantiates and returns a new wasm instance
 	NewInstance() WasmInstance
+
+	// GetABINameList returns the abi name list exported by wasm module
+	GetABINameList() []string
 }
 
 // WasmInstance represents the wasm instance
@@ -168,10 +182,45 @@ type WasmInstance interface {
 
 	// SetData sets user-defined data into the wasm instance
 	SetData(data interface{})
+
+	// GetModule returns the wasm module of current instance
+	GetModule() WasmModule
 }
 
 // WasmFunction is the func exported by wasm module
 type WasmFunction interface {
 	// Call invokes the wasm func
 	Call(args ...interface{}) (interface{}, error)
+}
+
+//
+//	ABI
+//
+
+// ABI represents the abi between the host and wasm, which consists of three parts: exports, imports and life-cycle handler
+// *exports* represents the exported elements of the wasm module, i.e., the abilities provided by wasm and exposed to host
+// *imports* represents the imported elements of the wasm module, i.e., the dependencies that required by wasm
+// *life-cycle handler* manages the life-cycle of an abi
+type ABI interface {
+	// Name returns the name of ABI
+	Name() string
+
+	// GetExports returns the export part of the abi
+	GetExports() interface{}
+
+	// SetImports sets the import part of the abi
+	SetImports(imports interface{})
+
+	ABIHandler
+}
+
+type ABIHandler interface {
+	// life-cycle: OnInstanceCreate got called when instantiating the wasm instance
+	OnInstanceCreate(instance WasmInstance)
+
+	// life-cycle: OnInstanceStart got called when starting the wasm instance
+	OnInstanceStart(instance WasmInstance)
+
+	// life-cycle: OnInstanceDestroy got called when destroying the wasm instance
+	OnInstanceDestroy(instance WasmInstance)
 }

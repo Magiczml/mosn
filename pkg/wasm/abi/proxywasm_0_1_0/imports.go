@@ -27,15 +27,22 @@ import (
 func getInstanceCallback(instance types.WasmInstance) InstanceCallback {
 	v := instance.GetData()
 	if v == nil {
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][getInstanceCallback] instance.GetData() return nil")
 		return &DefaultInstanceCallback{}
 	}
 
-	cb, ok := v.(InstanceCallback)
+	cb, ok := v.(*abiImpl)
 	if !ok {
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][getInstanceCallback] instance.GetData() return in-correct abi type")
 		return &DefaultInstanceCallback{}
 	}
 
-	return cb
+	if cb.imports == nil {
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][getInstanceCallback] abiImpl.imports is nil")
+		return &DefaultInstanceCallback{}
+	}
+
+	return cb.imports
 }
 
 func proxyLog(instance types.WasmInstance, level int32, logDataPtr int32, logDataSize int32) int32 {

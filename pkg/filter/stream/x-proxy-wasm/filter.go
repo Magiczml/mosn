@@ -32,6 +32,8 @@ import (
 )
 
 type Filter struct {
+	proxywasm_0_1_0.InstanceCallback
+
 	ctx context.Context
 
 	factory *FilterConfigFactory
@@ -40,7 +42,7 @@ type Filter struct {
 	plugin     types.WasmPlugin
 	instance   types.WasmInstanceWrapper
 
-	abi     abi.ABI
+	abi     types.ABI
 	exports proxywasm_0_1_0.Exports
 
 	rootContextID int32
@@ -55,13 +57,6 @@ type Filter struct {
 var contextIDGenerator int32
 
 func NewFilter(ctx context.Context, pluginName string, rootContextID int32, factory *FilterConfigFactory) *Filter {
-	abiVersion := abi.GetABI("proxy_abi_version_0_1_0")
-	if abiVersion == nil {
-		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] NewFilter abi version not found")
-		return nil
-	}
-
-	// get wasm plugin instance
 	pluginWrapper := wasm.GetWasmManager().GetWasmPluginWrapperByName(pluginName)
 	if pluginWrapper == nil {
 		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] OnReceive wasm plugin not exists, plugin name: %v", pluginName)
@@ -77,15 +72,27 @@ func NewFilter(ctx context.Context, pluginName string, rootContextID int32, fact
 		pluginName:    pluginName,
 		plugin:        plugin,
 		instance:      instance,
-		abi:           abiVersion,
-		exports:       abiVersion.(proxywasm_0_1_0.Exports),
 		rootContextID: rootContextID,
 		contextID:     atomic.AddInt32(&contextIDGenerator, 1),
 	}
 
-	filter.abi.SetInstance(filter.instance)
+	filter.abi = abi.GetABI(instance, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
+	if filter.abi == nil {
+		log.DefaultLogger.Errorf("")
+		plugin.ReleaseInstance(instance)
+		return nil
+	}
 
-	filter.instance.Acquire(filter)
+	filter.abi.SetImports(filter.InstanceCallback)
+
+	filter.exports = filter.abi.GetExports().(proxywasm_0_1_0.Exports)
+	if filter.exports == nil {
+		log.DefaultLogger.Errorf("")
+		plugin.ReleaseInstance(instance)
+		return nil
+	}
+
+	filter.instance.Acquire(filter.abi)
 	_ = filter.exports.ProxyOnContextCreate(filter.contextID, filter.rootContextID)
 	filter.instance.Release()
 
@@ -94,7 +101,7 @@ func NewFilter(ctx context.Context, pluginName string, rootContextID int32, fact
 
 func (f *Filter) OnDestroy() {
 	f.destroyOnce.Do(func() {
-		f.instance.Acquire(f)
+		f.instance.Acquire(f.abi)
 		_, _ = f.exports.ProxyOnDone(f.contextID)
 		f.instance.Release()
 
@@ -111,7 +118,7 @@ func (f *Filter) SetSenderFilterHandler(handler api.StreamSenderFilterHandler) {
 }
 
 func (f *Filter) OnReceive(ctx context.Context, headers api.HeaderMap, buf buffer.IoBuffer, trailers api.HeaderMap) api.StreamFilterStatus {
-	f.instance.Acquire(f)
+	f.instance.Acquire(f.abi)
 	defer f.instance.Release()
 
 	// do filter
@@ -132,7 +139,7 @@ func (f *Filter) OnReceive(ctx context.Context, headers api.HeaderMap, buf buffe
 }
 
 func (f *Filter) Append(ctx context.Context, headers api.HeaderMap, buf buffer.IoBuffer, trailers api.HeaderMap) api.StreamFilterStatus {
-	f.instance.Acquire(f)
+	f.instance.Acquire(f.abi)
 	defer f.instance.Release()
 
 	// do filter

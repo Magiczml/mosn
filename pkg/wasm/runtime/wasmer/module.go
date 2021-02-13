@@ -22,13 +22,12 @@ import (
 
 	wasmerGo "github.com/wasmerio/wasmer-go/wasmer"
 	"mosn.io/mosn/pkg/types"
-	"mosn.io/mosn/pkg/wasm/abi"
 )
 
 type Module struct {
 	vm            *VM
 	module        *wasmerGo.Module
-	abiList       []abi.ABI
+	abiNameList   []string
 	moduleImports []moduleImport
 }
 
@@ -52,7 +51,7 @@ func NewWasmerModule(vm *VM, module *wasmerGo.Module) *Module {
 
 func (w *Module) Init() {
 	w.ensureWASIImports()
-	w.abiList = w.GetABIList()
+	w.abiNameList = w.GetABINameList()
 	return
 }
 
@@ -60,24 +59,20 @@ func (w *Module) NewInstance() types.WasmInstance {
 	return NewWasmerInstance(w.vm, w)
 }
 
-func (w *Module) GetABIList() []abi.ABI {
-	abiList := make([]abi.ABI, 0)
+func (w *Module) GetABINameList() []string {
+	abiNameList := make([]string, 0)
 
 	exportList := w.module.Exports()
 
 	for _, export := range exportList {
 		if export.Type().Kind() == wasmerGo.FUNCTION {
 			if strings.HasPrefix(export.Name(), "proxy_abi") {
-				v := abi.GetABI(export.Name())
-
-				if v != nil {
-					abiList = append(abiList, v)
-				}
+				abiNameList = append(abiNameList, export.Name())
 			}
 		}
 	}
 
-	return abiList
+	return abiNameList
 }
 
 func (w *Module) ensureWASIImports() {

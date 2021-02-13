@@ -29,6 +29,7 @@ import (
 	wasmerGo "github.com/wasmerio/wasmer-go/wasmer"
 	"mosn.io/mosn/pkg/log"
 	"mosn.io/mosn/pkg/types"
+	"mosn.io/mosn/pkg/wasm/abi"
 )
 
 var (
@@ -46,6 +47,8 @@ type Instance struct {
 	module       *Module
 	importObject *wasmerGo.ImportObject
 	instance     *wasmerGo.Instance
+
+	abiList []types.ABI
 
 	started uint32
 
@@ -82,8 +85,14 @@ func (w *Instance) SetData(data interface{}) {
 	w.data = data
 }
 
+func (w *Instance) GetModule() types.WasmModule {
+	return w.module
+}
+
 func (w *Instance) Start() error {
-	for _, abi := range w.module.GetABIList() {
+	w.abiList = abi.GetABIList(w)
+
+	for _, abi := range w.abiList {
 		abi.OnInstanceCreate(w)
 	}
 
@@ -106,7 +115,7 @@ func (w *Instance) Start() error {
 		return err
 	}
 
-	for _, abi := range w.module.GetABIList() {
+	for _, abi := range w.abiList {
 		abi.OnInstanceStart(w)
 	}
 
