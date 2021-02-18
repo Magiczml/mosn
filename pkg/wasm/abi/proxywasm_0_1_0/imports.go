@@ -37,22 +37,22 @@ import (
 	"mosn.io/pkg/buffer"
 )
 
-func getInstanceCallback(instance types.WasmInstance) InstanceCallback {
+func getInstanceCallback(instance types.WasmInstance) ImportsHandler {
 	v := instance.GetData()
 	if v == nil {
 		log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] getInstanceCallback instance.GetData() return nil")
-		return &DefaultInstanceCallback{}
+		return &DefaultImportsHandler{}
 	}
 
-	cb, ok := v.(*abiImpl)
+	cb, ok := v.(*abiContext)
 	if !ok {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] getInstanceCallback return type is not *abiImpl")
-		return &DefaultInstanceCallback{}
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] getInstanceCallback return type is not *abiContext")
+		return &DefaultImportsHandler{}
 	}
 
 	if cb.imports == nil {
 		log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] getInstanceCallback imports not set")
-		return &DefaultInstanceCallback{}
+		return &DefaultImportsHandler{}
 	}
 
 	return cb.imports
@@ -65,7 +65,7 @@ func getHttpStruct(instance types.WasmInstance) *httpStruct {
 		return &httpStruct{}
 	}
 
-	cb, ok := v.(*abiImpl)
+	cb, ok := v.(*abiContext)
 	if !ok {
 		log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] getHttpStruct return type is not *abiImple")
 		return &httpStruct{}
@@ -442,7 +442,7 @@ func proxyGrpcSend(instance types.WasmInstance, token int32, messagePtr int32, m
 type httpStruct struct {
 	calloutID         int32
 	instance          types.WasmInstance
-	abi               *abiImpl
+	abi               *abiContext
 	conn              types.ClientConnection
 	connEventListener api.ConnectionEventListener
 	ctx               context.Context
@@ -639,7 +639,7 @@ func proxyHttpCall(instance types.WasmInstance, uriPtr int32, uriSize int32,
 	hs := &httpStruct{
 		calloutID: calloutID,
 		instance:  instance,
-		abi:       instance.GetData().(*abiImpl),
+		abi:       instance.GetData().(*abiContext),
 	}
 	hs.abi.httpCallout = hs
 

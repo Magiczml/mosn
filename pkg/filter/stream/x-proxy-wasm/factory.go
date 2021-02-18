@@ -41,7 +41,7 @@ func init() {
 }
 
 type FilterConfigFactory struct {
-	proxywasm_0_1_0.DefaultInstanceCallback
+	proxywasm_0_1_0.DefaultImportsHandler
 
 	pluginName string
 	config     *filterConfig

@@ -89,7 +89,7 @@ type WasmPlugin interface {
 	ReleaseInstance(instance WasmInstance)
 
 	// Exec execute the f for each instance
-	Exec(f func(instance WasmInstance)bool)
+	Exec(f func(instance WasmInstance) bool)
 
 	// SetCpuLimit set cpu limit of the plugin, not supported currently
 	SetCpuLimit(cpu int)
@@ -100,6 +100,10 @@ type WasmPlugin interface {
 	// Clear got called when the plugin is destroyed
 	Clear()
 }
+
+//
+// VM
+//
 
 // WasmVM represents the wasm vm(engine)
 type WasmVM interface {

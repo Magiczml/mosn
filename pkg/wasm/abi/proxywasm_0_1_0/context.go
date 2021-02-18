@@ -26,44 +26,44 @@ import (
 const ProxyWasmABI_0_1_0 string = "proxy_abi_version_0_1_0"
 
 func init() {
-	abi.RegisterABI(ProxyWasmABI_0_1_0, abiImplFactory)
+	abi.RegisterABI(ProxyWasmABI_0_1_0, abiContextFactory)
 }
 
-func abiImplFactory(instance types.WasmInstance) types.ABI {
-	return &abiImpl{
+func abiContextFactory(instance types.WasmInstance) types.ABI {
+	return &abiContext{
 		instance: instance,
-		imports:  &DefaultInstanceCallback{},
+		imports:  &DefaultImportsHandler{},
 	}
 }
 
-type abiImpl struct {
-	imports     InstanceCallback
+type abiContext struct {
+	imports     ImportsHandler
 	instance    types.WasmInstance
 	httpCallout *httpStruct
 }
 
-func (a *abiImpl) Name() string {
+func (a *abiContext) Name() string {
 	return ProxyWasmABI_0_1_0
 }
 
-func (a *abiImpl) GetExports() interface{} {
+func (a *abiContext) GetExports() interface{} {
 	return a
 }
 
-func (a *abiImpl) SetImports(imports interface{}) {
-	cb, ok := imports.(InstanceCallback)
+func (a *abiContext) SetImports(imports interface{}) {
+	cb, ok := imports.(ImportsHandler)
 	if !ok {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][impl] SetImports type is not InstanceCallback")
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][context] SetImports type is not ImportsHandler")
 		return
 	}
 	a.imports = cb
 }
 
-func (a *abiImpl) SetInstance(instance types.WasmInstance) {
+func (a *abiContext) SetInstance(instance types.WasmInstance) {
 	a.instance = instance
 }
 
-func (a *abiImpl) OnInstanceCreate(instance types.WasmInstance) {
+func (a *abiContext) OnInstanceCreate(instance types.WasmInstance) {
 	instance.RegisterFunc("env", "proxy_log", proxyLog)
 
 	instance.RegisterFunc("env", "proxy_set_effective_context", proxySetEffectiveContext)
@@ -109,10 +109,10 @@ func (a *abiImpl) OnInstanceCreate(instance types.WasmInstance) {
 	return
 }
 
-func (a *abiImpl) OnInstanceStart(instance types.WasmInstance) {
+func (a *abiContext) OnInstanceStart(instance types.WasmInstance) {
 	return
 }
 
-func (a *abiImpl) OnInstanceDestroy(instance types.WasmInstance) {
+func (a *abiContext) OnInstanceDestroy(instance types.WasmInstance) {
 	return
 }

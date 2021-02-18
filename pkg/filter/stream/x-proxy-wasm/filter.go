@@ -32,7 +32,7 @@ import (
 )
 
 type Filter struct {
-	proxywasm_0_1_0.DefaultInstanceCallback
+	proxywasm_0_1_0.DefaultImportsHandler
 
 	ctx context.Context
 

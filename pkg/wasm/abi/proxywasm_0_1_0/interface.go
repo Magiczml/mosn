@@ -56,7 +56,7 @@ type Exports interface {
 	ProxyOnQueueReady(rootContextId int32, token int32) error
 }
 
-type InstanceCallback interface {
+type ImportsHandler interface {
 	GetRootContextID() int32
 
 	GetVmConfig() buffer.IoBuffer
@@ -73,21 +73,21 @@ type InstanceCallback interface {
 	GetHttpResponseTrailer() api.HeaderMap
 }
 
-type DefaultInstanceCallback struct{}
+type DefaultImportsHandler struct{}
 
-func (d *DefaultInstanceCallback) GetRootContextID() int32 {
+func (d *DefaultImportsHandler) GetRootContextID() int32 {
 	return 0
 }
 
-func (d *DefaultInstanceCallback) GetVmConfig() buffer.IoBuffer {
+func (d *DefaultImportsHandler) GetVmConfig() buffer.IoBuffer {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) GetPluginConfig() buffer.IoBuffer {
+func (d *DefaultImportsHandler) GetPluginConfig() buffer.IoBuffer {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) Log(level log.Level, msg string) {
+func (d *DefaultImportsHandler) Log(level log.Level, msg string) {
 	logFunc := log.DefaultLogger.Infof
 	switch level {
 	case log.TRACE:
@@ -106,26 +106,26 @@ func (d *DefaultInstanceCallback) Log(level log.Level, msg string) {
 	logFunc(msg)
 }
 
-func (d *DefaultInstanceCallback) GetHttpRequestHeader() api.HeaderMap {
+func (d *DefaultImportsHandler) GetHttpRequestHeader() api.HeaderMap {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) GetHttpRequestBody() buffer.IoBuffer {
+func (d *DefaultImportsHandler) GetHttpRequestBody() buffer.IoBuffer {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) GetHttpRequestTrailer() api.HeaderMap {
+func (d *DefaultImportsHandler) GetHttpRequestTrailer() api.HeaderMap {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) GetHttpResponseHeader() api.HeaderMap {
+func (d *DefaultImportsHandler) GetHttpResponseHeader() api.HeaderMap {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) GetHttpResponseBody() buffer.IoBuffer {
+func (d *DefaultImportsHandler) GetHttpResponseBody() buffer.IoBuffer {
 	return nil
 }
 
-func (d *DefaultInstanceCallback) GetHttpResponseTrailer() api.HeaderMap {
+func (d *DefaultImportsHandler) GetHttpResponseTrailer() api.HeaderMap {
 	return nil
 }

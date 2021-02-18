@@ -58,7 +58,7 @@ func TestCallExports(t *testing.T) {
 	ins := module.NewInstance()
 	assert.Nil(t, ins.Start())
 
-	abi := abiImplFactory(ins)
+	abi := abiContextFactory(ins)
 	exports := abi.GetExports().(Exports)
 
 	var err error

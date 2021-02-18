@@ -34,7 +34,7 @@ import (
 )
 
 type mockInstanceCallback struct {
-	proxywasm_0_1_0.DefaultInstanceCallback
+	proxywasm_0_1_0.DefaultImportsHandler
 
 	ctrl           *gomock.Controller
 	requestHeader  api.HeaderMap
