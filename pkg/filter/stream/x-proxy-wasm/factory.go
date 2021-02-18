@@ -134,13 +134,13 @@ func (f *FilterConfigFactory) OnConfigUpdate(config v2.WasmPluginConfig) {
 }
 
 func (f *FilterConfigFactory) OnPluginStart(plugin types.WasmPlugin) {
-	plugin.Exec(func(instanceWrapper types.WasmInstanceWrapper) bool {
-		a := abi.GetABI(instanceWrapper, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
+	plugin.Exec(func(instance types.WasmInstance) bool {
+		a := abi.GetABI(instance, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
 		a.SetImports(f)
 		exports := a.GetExports().(proxywasm_0_1_0.Exports)
 
-		instanceWrapper.Acquire(a)
-		defer instanceWrapper.Release()
+		instance.Acquire(a)
+		defer instance.Release()
 
 		_ = exports.ProxyOnContextCreate(f.config.RootContextID, 0)
 		_, _ = exports.ProxyOnConfigure(f.config.RootContextID, 0)

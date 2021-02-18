@@ -83,13 +83,13 @@ type WasmPlugin interface {
 	InstanceNum() int
 
 	// GetInstance returns one plugin instance of the plugin
-	GetInstance() WasmInstanceWrapper
+	GetInstance() WasmInstance
 
 	// ReleaseInstance releases the instance to the plugin
-	ReleaseInstance(instanceWrapper WasmInstanceWrapper)
+	ReleaseInstance(instance WasmInstance)
 
 	// Exec execute the f for each instance
-	Exec(f func(instanceWrapper WasmInstanceWrapper) bool)
+	Exec(f func(instance WasmInstance)bool)
 
 	// SetCpuLimit set cpu limit of the plugin, not supported currently
 	SetCpuLimit(cpu int)
@@ -100,23 +100,6 @@ type WasmPlugin interface {
 	// Clear got called when the plugin is destroyed
 	Clear()
 }
-
-// WasmInstanceWrapper wraps the wasm instance with an exclusive lock
-type WasmInstanceWrapper interface {
-	WasmInstance
-
-	// Acquire gets the exclusive ownership of the wasm instance
-	// and sets the user-defined data
-	Acquire(data interface{})
-
-	// Release releases the exclusive ownership of the wasm instance
-	// and sets the users-defined data to nil
-	Release()
-}
-
-//
-//	VM
-//
 
 // WasmVM represents the wasm vm(engine)
 type WasmVM interface {
@@ -182,6 +165,14 @@ type WasmInstance interface {
 
 	// SetData sets user-defined data into the wasm instance
 	SetData(data interface{})
+
+	// Acquire gets the exclusive ownership of the wasm instance
+	// and sets the user-defined data
+	Acquire(data interface{})
+
+	// Release releases the exclusive ownership of the wasm instance
+	// and sets the users-defined data to nil
+	Release()
 
 	// GetModule returns the wasm module of current instance
 	GetModule() WasmModule

@@ -19,8 +19,19 @@ package proxywasm_0_1_0
 
 import "mosn.io/mosn/pkg/log"
 
+func (a *abiImpl) waitAsyncHttpCallout() {
+	if a.httpCallout != nil && a.httpCallout.asyncRetChan != nil {
+		_, ok := <-a.httpCallout.asyncRetChan
+		if !ok {
+			log.DefaultLogger.Infof("[proxywasm_0_1_0][export] waitAsyncCallout channel close")
+		}
+	}
+}
+
 func (a *abiImpl) ProxyOnContextCreate(contextId int32, parentContextId int32) error {
-	log.DefaultLogger.Infof("[proxywasm_0_1_0][export] ProxyOnContextCreate contextID: %v, parentContextId: %v", contextId, parentContextId)
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] ProxyOnContextCreate contextID: %v, parentContextId: %v", contextId, parentContextId)
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_context_create")
 	if err != nil {
@@ -32,10 +43,16 @@ func (a *abiImpl) ProxyOnContextCreate(contextId int32, parentContextId int32) e
 	if err != nil {
 		return err
 	}
+
+	a.waitAsyncHttpCallout()
+
 	return nil
 }
+
 func (a *abiImpl) ProxyOnDone(contextId int32) (int32, error) {
-	log.DefaultLogger.Infof("[proxywasm_0_1_0][export] ProxyOnDone contextID: %v", contextId)
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Infof("[proxywasm_0_1_0][export] ProxyOnDone contextID: %v", contextId)
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_done")
 	if err != nil {
@@ -48,11 +65,15 @@ func (a *abiImpl) ProxyOnDone(contextId int32) (int32, error) {
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnLog(contextId int32) error {
-	log.DefaultLogger.Debugf("[wasmer][instance] ProxyOnLog")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[wasmer][instance] ProxyOnLog")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_log")
 	if err != nil {
@@ -79,10 +100,15 @@ func (a *abiImpl) ProxyOnVmStart(rootContextId int32, vmConfigurationSize int32)
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
+
 func (a *abiImpl) ProxyOnDelete(contextId int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnDelete")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnDelete")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_delete")
 	if err != nil {
@@ -91,6 +117,8 @@ func (a *abiImpl) ProxyOnDelete(contextId int32) error {
 	}
 
 	_, err = ff.Call(contextId)
+
+	a.waitAsyncHttpCallout()
 
 	return err
 }
@@ -109,11 +137,15 @@ func (a *abiImpl) ProxyOnConfigure(rootContextId int32, configurationSize int32)
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnTick(rootContextId int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnTick")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnTick")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_tick")
 	if err != nil {
@@ -123,11 +155,15 @@ func (a *abiImpl) ProxyOnTick(rootContextId int32) error {
 
 	_, err = ff.Call(rootContextId)
 
+	a.waitAsyncHttpCallout()
+
 	return err
 }
 
 func (a *abiImpl) ProxyOnNewConnection(contextId int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnNewConnection")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnNewConnection")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_new_connection")
 	if err != nil {
@@ -137,11 +173,15 @@ func (a *abiImpl) ProxyOnNewConnection(contextId int32) error {
 
 	_, err = ff.Call(contextId)
 
+	a.waitAsyncHttpCallout()
+
 	return err
 }
 
 func (a *abiImpl) ProxyOnDownstreamData(contextId int32, dataLength int32, endOfStream int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnDownstreamData")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnDownstreamData")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_downstream_data")
 	if err != nil {
@@ -154,11 +194,15 @@ func (a *abiImpl) ProxyOnDownstreamData(contextId int32, dataLength int32, endOf
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnDownstreamConnectionClose(contextId int32, closeType int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnDownstreamConnectionClose")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnDownstreamConnectionClose")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_downstream_connection_close")
 	if err != nil {
@@ -168,11 +212,15 @@ func (a *abiImpl) ProxyOnDownstreamConnectionClose(contextId int32, closeType in
 
 	_, err = ff.Call(contextId, closeType)
 
+	a.waitAsyncHttpCallout()
+
 	return err
 }
 
 func (a *abiImpl) ProxyOnUpstreamData(contextId int32, dataLength int32, endOfStream int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnUpstreamData")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnUpstreamData")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_upstream_data")
 	if err != nil {
@@ -185,11 +233,15 @@ func (a *abiImpl) ProxyOnUpstreamData(contextId int32, dataLength int32, endOfSt
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnUpstreamConnectionClose(contextId int32, closeType int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnUpstreamConnectionClose")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnUpstreamConnectionClose")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_upstream_connection_close")
 	if err != nil {
@@ -199,11 +251,15 @@ func (a *abiImpl) ProxyOnUpstreamConnectionClose(contextId int32, closeType int3
 
 	_, err = ff.Call(contextId, closeType)
 
+	a.waitAsyncHttpCallout()
+
 	return err
 }
 
 func (a *abiImpl) ProxyOnRequestHeaders(contextID int32, numHeaders int32, endOfStream int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestHeaders")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestHeaders")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_request_headers")
 	if err != nil {
@@ -217,11 +273,15 @@ func (a *abiImpl) ProxyOnRequestHeaders(contextID int32, numHeaders int32, endOf
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return ret.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnRequestBody(contextId int32, bodyBufferLength int32, endOfStream int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestBody")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestBody")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_request_body")
 	if err != nil {
@@ -234,11 +294,15 @@ func (a *abiImpl) ProxyOnRequestBody(contextId int32, bodyBufferLength int32, en
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnRequestTrailers(contextId int32, trailers int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestTrailers")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestTrailers")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_request_trailers")
 	if err != nil {
@@ -251,11 +315,15 @@ func (a *abiImpl) ProxyOnRequestTrailers(contextId int32, trailers int32) (int32
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnRequestMetadata(contextId int32, nElements int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestMetadata")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnRequestMetadata")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_request_metadata")
 	if err != nil {
@@ -268,11 +336,15 @@ func (a *abiImpl) ProxyOnRequestMetadata(contextId int32, nElements int32) (int3
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnResponseHeaders(contextId int32, headers int32, endOfStream int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseHeaders")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseHeaders")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_response_headers")
 	if err != nil {
@@ -285,11 +357,15 @@ func (a *abiImpl) ProxyOnResponseHeaders(contextId int32, headers int32, endOfSt
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnResponseBody(contextId int32, bodyBufferLength int32, endOfStream int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseBody")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseBody")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_response_body")
 	if err != nil {
@@ -302,11 +378,15 @@ func (a *abiImpl) ProxyOnResponseBody(contextId int32, bodyBufferLength int32, e
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnResponseTrailers(contextId int32, trailers int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseTrailers")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseTrailers")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_response_trailers")
 	if err != nil {
@@ -319,11 +399,15 @@ func (a *abiImpl) ProxyOnResponseTrailers(contextId int32, trailers int32) (int3
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnResponseMetadata(contextId int32, nElements int32) (int32, error) {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseMetadata")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnResponseMetadata")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_response_metadata")
 	if err != nil {
@@ -336,11 +420,15 @@ func (a *abiImpl) ProxyOnResponseMetadata(contextId int32, nElements int32) (int
 		return 0, err
 	}
 
+	a.waitAsyncHttpCallout()
+
 	return res.(int32), nil
 }
 
 func (a *abiImpl) ProxyOnHttpCallResponse(contextId int32, token int32, headers int32, bodySize int32, trailers int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnHttpCallResponse")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnHttpCallResponse")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_http_call_response")
 	if err != nil {
@@ -354,7 +442,9 @@ func (a *abiImpl) ProxyOnHttpCallResponse(contextId int32, token int32, headers 
 }
 
 func (a *abiImpl) ProxyOnGrpcReceiveInitialMetadata(contextId int32, token int32, headers int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcReceiveInitialMetadata")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcReceiveInitialMetadata")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_receive_initial_metadata")
 	if err != nil {
@@ -368,7 +458,9 @@ func (a *abiImpl) ProxyOnGrpcReceiveInitialMetadata(contextId int32, token int32
 }
 
 func (a *abiImpl) ProxyOnGrpcTrailingMetadata(contextId int32, token int32, trailers int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcTrailingMetadata")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcTrailingMetadata")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_trailing_metadata")
 	if err != nil {
@@ -382,7 +474,9 @@ func (a *abiImpl) ProxyOnGrpcTrailingMetadata(contextId int32, token int32, trai
 }
 
 func (a *abiImpl) ProxyOnGrpcReceive(contextId int32, token int32, responseSize int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcReceive")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcReceive")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_receive")
 	if err != nil {
@@ -396,7 +490,9 @@ func (a *abiImpl) ProxyOnGrpcReceive(contextId int32, token int32, responseSize 
 }
 
 func (a *abiImpl) ProxyOnGrpcClose(contextId int32, token int32, statusCode int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcClose")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcClose")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_close")
 	if err != nil {
@@ -410,7 +506,9 @@ func (a *abiImpl) ProxyOnGrpcClose(contextId int32, token int32, statusCode int3
 }
 
 func (a *abiImpl) ProxyOnQueueReady(rootContextId int32, token int32) error {
-	log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnQueueReady")
+	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
+		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnQueueReady")
+	}
 
 	ff, err := a.instance.GetExportsFunc("proxy_on_queue_ready")
 	if err != nil {

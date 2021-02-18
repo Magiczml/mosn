@@ -19,15 +19,15 @@ package x_proxy_wasm
 
 import (
 	"context"
-	"sync"
-	"testing"
-
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"mosn.io/api"
 	"mosn.io/mosn/pkg/mock"
+	_ "mosn.io/mosn/pkg/stream/http"
 	_ "mosn.io/mosn/pkg/wasm/runtime/wasmer"
 	"mosn.io/pkg/buffer"
+	"sync"
+	"testing"
 )
 
 func mockHeaderMap(ctrl *gomock.Controller) api.HeaderMap {
@@ -72,7 +72,7 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 		"instance_num": 2,
 		"vm_config": map[string]interface{}{
 			"engine": "wasmer",
-			"path":   "./data/test.wasm",
+			"path":   "./data/httpCall.wasm",
 			"cpu":    50,
 			"mem":    50,
 		},
@@ -89,7 +89,7 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 1; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

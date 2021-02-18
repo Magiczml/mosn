@@ -32,30 +32,31 @@ func init() {
 func abiImplFactory(instance types.WasmInstance) types.ABI {
 	return &abiImpl{
 		instance: instance,
+		imports:  &DefaultInstanceCallback{},
 	}
 }
 
 type abiImpl struct {
-	Exports
-	imports  InstanceCallback
-	instance types.WasmInstance
+	imports     InstanceCallback
+	instance    types.WasmInstance
+	httpCallout *httpStruct
+}
+
+func (a *abiImpl) Name() string {
+	return ProxyWasmABI_0_1_0
 }
 
 func (a *abiImpl) GetExports() interface{} {
-	return a.Exports
+	return a
 }
 
 func (a *abiImpl) SetImports(imports interface{}) {
 	cb, ok := imports.(InstanceCallback)
 	if !ok {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][impl] SetImports with invalid type")
+		log.DefaultLogger.Errorf("[proxywasm_0_1_0][impl] SetImports type is not InstanceCallback")
 		return
 	}
 	a.imports = cb
-}
-
-func (a *abiImpl) Name() string {
-	return ProxyWasmABI_0_1_0
 }
 
 func (a *abiImpl) SetInstance(instance types.WasmInstance) {

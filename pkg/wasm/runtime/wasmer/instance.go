@@ -58,6 +58,8 @@ type Instance struct {
 
 	// user-defined data
 	data interface{}
+
+	lock sync.Mutex
 }
 
 func NewWasmerInstance(vm *VM, module *Module) *Instance {
@@ -83,6 +85,16 @@ func (w *Instance) GetData() interface{} {
 
 func (w *Instance) SetData(data interface{}) {
 	w.data = data
+}
+
+func (w *Instance) Acquire(data interface{}) {
+	w.lock.Lock()
+	w.data = data
+}
+
+func (w *Instance) Release() {
+	w.data = nil
+	w.lock.Unlock()
 }
 
 func (w *Instance) GetModule() types.WasmModule {

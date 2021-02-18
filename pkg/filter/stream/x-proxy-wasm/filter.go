@@ -40,7 +40,7 @@ type Filter struct {
 
 	pluginName string
 	plugin     types.WasmPlugin
-	instance   types.WasmInstanceWrapper
+	instance   types.WasmInstance
 
 	abi     types.ABI
 	exports proxywasm_0_1_0.Exports
@@ -83,7 +83,7 @@ func NewFilter(ctx context.Context, pluginName string, rootContextID int32, fact
 		return nil
 	}
 
-	filter.abi.SetImports(filter.InstanceCallback)
+	filter.abi.SetImports(filter)
 
 	filter.exports = filter.abi.GetExports().(proxywasm_0_1_0.Exports)
 	if filter.exports == nil {
@@ -157,6 +157,10 @@ func (f *Filter) Append(ctx context.Context, headers api.HeaderMap, buf buffer.I
 	}
 
 	return api.StreamFilterContinue
+}
+
+func (f *Filter) GetRootContextID() int32 {
+	return f.rootContextID
 }
 
 func (f *Filter) GetVmConfig() buffer.IoBuffer {

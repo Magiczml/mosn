@@ -115,7 +115,7 @@ type wasmPluginImpl struct {
 	lock sync.RWMutex
 
 	instanceNum         int
-	instanceWrappers    []types.WasmInstanceWrapper
+	instances           []types.WasmInstance
 	instanceWrappersIdx int32
 
 	occupy int32
@@ -190,16 +190,16 @@ func (w *wasmPluginImpl) EnsureInstanceNum(num int) int {
 	if num < w.instanceNum {
 		w.lock.Lock()
 
-		for i := num; i < len(w.instanceWrappers); i++ {
-			w.instanceWrappers[i] = nil
+		for i := num; i < len(w.instances); i++ {
+			w.instances[i] = nil
 		}
 
-		w.instanceWrappers = w.instanceWrappers[:num]
+		w.instances = w.instances[:num]
 		w.instanceNum = num
 
 		w.lock.Unlock()
 	} else {
-		newInstance := make([]types.WasmInstanceWrapper, 0)
+		newInstance := make([]types.WasmInstance, 0)
 		numToCreate := num - w.instanceNum
 
 		for i := 0; i < numToCreate; i++ {
@@ -215,12 +215,12 @@ func (w *wasmPluginImpl) EnsureInstanceNum(num int) int {
 				continue
 			}
 
-			newInstance = append(newInstance, &wasmInstanceWrapperImpl{WasmInstance: instance})
+			newInstance = append(newInstance, instance)
 		}
 
 		w.lock.Lock()
 
-		w.instanceWrappers = append(w.instanceWrappers, newInstance...)
+		w.instances = append(w.instances, newInstance...)
 		w.instanceNum += len(newInstance)
 
 		w.lock.Unlock()
@@ -254,11 +254,11 @@ func (w *wasmPluginImpl) SetMemLimit(mem int) {
 }
 
 // Exec execute the f for each instance
-func (w *wasmPluginImpl) Exec(f func(instanceWrapper types.WasmInstanceWrapper) bool) {
+func (w *wasmPluginImpl) Exec(f func(instance types.WasmInstance) bool) {
 	w.lock.RLock()
 	defer w.lock.RUnlock()
 
-	for _, iw := range w.instanceWrappers {
+	for _, iw := range w.instances {
 		if !f(iw) {
 			break
 		}
@@ -273,13 +273,13 @@ func (w *wasmPluginImpl) GetVmConfig() v2.WasmVmConfig {
 	return *w.config.VmConfig
 }
 
-func (w *wasmPluginImpl) GetInstance() types.WasmInstanceWrapper {
+func (w *wasmPluginImpl) GetInstance() types.WasmInstance {
 	w.lock.RLock()
 	defer w.lock.RUnlock()
 
-	idx := int(w.instanceWrappersIdx) % len(w.instanceWrappers)
+	idx := int(w.instanceWrappersIdx) % len(w.instances)
 
-	iw := w.instanceWrappers[idx]
+	iw := w.instances[idx]
 
 	w.instanceWrappersIdx++
 	atomic.AddInt32(&w.occupy, 1)
@@ -287,7 +287,7 @@ func (w *wasmPluginImpl) GetInstance() types.WasmInstanceWrapper {
 	return iw
 }
 
-func (w *wasmPluginImpl) ReleaseInstance(instanceWrapper types.WasmInstanceWrapper) {
+func (w *wasmPluginImpl) ReleaseInstance(instance types.WasmInstance) {
 	atomic.AddInt32(&w.occupy, -1)
 }
 

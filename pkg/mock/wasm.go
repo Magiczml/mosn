@@ -304,10 +304,10 @@ func (mr *MockWasmPluginMockRecorder) InstanceNum() *gomock.Call {
 }
 
 // GetInstance mocks base method.
-func (m *MockWasmPlugin) GetInstance() types.WasmInstanceWrapper {
+func (m *MockWasmPlugin) GetInstance() types.WasmInstance {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInstance")
-	ret0, _ := ret[0].(types.WasmInstanceWrapper)
+	ret0, _ := ret[0].(types.WasmInstance)
 	return ret0
 }
 
@@ -318,19 +318,19 @@ func (mr *MockWasmPluginMockRecorder) GetInstance() *gomock.Call {
 }
 
 // ReleaseInstance mocks base method.
-func (m *MockWasmPlugin) ReleaseInstance(instanceWrapper types.WasmInstanceWrapper) {
+func (m *MockWasmPlugin) ReleaseInstance(instance types.WasmInstance) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "ReleaseInstance", instanceWrapper)
+	m.ctrl.Call(m, "ReleaseInstance", instance)
 }
 
 // ReleaseInstance indicates an expected call of ReleaseInstance.
-func (mr *MockWasmPluginMockRecorder) ReleaseInstance(instanceWrapper interface{}) *gomock.Call {
+func (mr *MockWasmPluginMockRecorder) ReleaseInstance(instance interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseInstance", reflect.TypeOf((*MockWasmPlugin)(nil).ReleaseInstance), instanceWrapper)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReleaseInstance", reflect.TypeOf((*MockWasmPlugin)(nil).ReleaseInstance), instance)
 }
 
 // Exec mocks base method.
-func (m *MockWasmPlugin) Exec(f func(types.WasmInstanceWrapper) bool) {
+func (m *MockWasmPlugin) Exec(f func(types.WasmInstance) bool) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "Exec", f)
 }
@@ -375,253 +375,6 @@ func (m *MockWasmPlugin) Clear() {
 func (mr *MockWasmPluginMockRecorder) Clear() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Clear", reflect.TypeOf((*MockWasmPlugin)(nil).Clear))
-}
-
-// MockWasmInstanceWrapper is a mock of WasmInstanceWrapper interface.
-type MockWasmInstanceWrapper struct {
-	ctrl     *gomock.Controller
-	recorder *MockWasmInstanceWrapperMockRecorder
-}
-
-// MockWasmInstanceWrapperMockRecorder is the mock recorder for MockWasmInstanceWrapper.
-type MockWasmInstanceWrapperMockRecorder struct {
-	mock *MockWasmInstanceWrapper
-}
-
-// NewMockWasmInstanceWrapper creates a new mock instance.
-func NewMockWasmInstanceWrapper(ctrl *gomock.Controller) *MockWasmInstanceWrapper {
-	mock := &MockWasmInstanceWrapper{ctrl: ctrl}
-	mock.recorder = &MockWasmInstanceWrapperMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockWasmInstanceWrapper) EXPECT() *MockWasmInstanceWrapperMockRecorder {
-	return m.recorder
-}
-
-// RegisterFunc mocks base method.
-func (m *MockWasmInstanceWrapper) RegisterFunc(namespace, funcName string, f interface{}) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterFunc", namespace, funcName, f)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RegisterFunc indicates an expected call of RegisterFunc.
-func (mr *MockWasmInstanceWrapperMockRecorder) RegisterFunc(namespace, funcName, f interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterFunc", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).RegisterFunc), namespace, funcName, f)
-}
-
-// Start mocks base method.
-func (m *MockWasmInstanceWrapper) Start() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Start")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Start indicates an expected call of Start.
-func (mr *MockWasmInstanceWrapperMockRecorder) Start() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Start", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).Start))
-}
-
-// GetExportsFunc mocks base method.
-func (m *MockWasmInstanceWrapper) GetExportsFunc(funcName string) (types.WasmFunction, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetExportsFunc", funcName)
-	ret0, _ := ret[0].(types.WasmFunction)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetExportsFunc indicates an expected call of GetExportsFunc.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetExportsFunc(funcName interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExportsFunc", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetExportsFunc), funcName)
-}
-
-// GetExportsMem mocks base method.
-func (m *MockWasmInstanceWrapper) GetExportsMem(memName string) ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetExportsMem", memName)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetExportsMem indicates an expected call of GetExportsMem.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetExportsMem(memName interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExportsMem", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetExportsMem), memName)
-}
-
-// GetMemory mocks base method.
-func (m *MockWasmInstanceWrapper) GetMemory(addr, size uint64) ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetMemory", addr, size)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetMemory indicates an expected call of GetMemory.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetMemory(addr, size interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMemory", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetMemory), addr, size)
-}
-
-// PutMemory mocks base method.
-func (m *MockWasmInstanceWrapper) PutMemory(addr, size uint64, content []byte) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PutMemory", addr, size, content)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// PutMemory indicates an expected call of PutMemory.
-func (mr *MockWasmInstanceWrapperMockRecorder) PutMemory(addr, size, content interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMemory", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).PutMemory), addr, size, content)
-}
-
-// GetByte mocks base method.
-func (m *MockWasmInstanceWrapper) GetByte(addr uint64) (byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByte", addr)
-	ret0, _ := ret[0].(byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByte indicates an expected call of GetByte.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetByte(addr interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByte", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetByte), addr)
-}
-
-// PutByte mocks base method.
-func (m *MockWasmInstanceWrapper) PutByte(addr uint64, b byte) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PutByte", addr, b)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// PutByte indicates an expected call of PutByte.
-func (mr *MockWasmInstanceWrapperMockRecorder) PutByte(addr, b interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutByte", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).PutByte), addr, b)
-}
-
-// GetUint32 mocks base method.
-func (m *MockWasmInstanceWrapper) GetUint32(addr uint64) (uint32, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUint32", addr)
-	ret0, _ := ret[0].(uint32)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUint32 indicates an expected call of GetUint32.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetUint32(addr interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUint32", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetUint32), addr)
-}
-
-// PutUint32 mocks base method.
-func (m *MockWasmInstanceWrapper) PutUint32(addr uint64, value uint32) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PutUint32", addr, value)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// PutUint32 indicates an expected call of PutUint32.
-func (mr *MockWasmInstanceWrapperMockRecorder) PutUint32(addr, value interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutUint32", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).PutUint32), addr, value)
-}
-
-// Malloc mocks base method.
-func (m *MockWasmInstanceWrapper) Malloc(size int32) (uint64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Malloc", size)
-	ret0, _ := ret[0].(uint64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Malloc indicates an expected call of Malloc.
-func (mr *MockWasmInstanceWrapperMockRecorder) Malloc(size interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Malloc", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).Malloc), size)
-}
-
-// GetData mocks base method.
-func (m *MockWasmInstanceWrapper) GetData() interface{} {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetData")
-	ret0, _ := ret[0].(interface{})
-	return ret0
-}
-
-// GetData indicates an expected call of GetData.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetData() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetData", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetData))
-}
-
-// SetData mocks base method.
-func (m *MockWasmInstanceWrapper) SetData(data interface{}) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetData", data)
-}
-
-// SetData indicates an expected call of SetData.
-func (mr *MockWasmInstanceWrapperMockRecorder) SetData(data interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetData", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).SetData), data)
-}
-
-// GetModule mocks base method.
-func (m *MockWasmInstanceWrapper) GetModule() types.WasmModule {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetModule")
-	ret0, _ := ret[0].(types.WasmModule)
-	return ret0
-}
-
-// GetModule indicates an expected call of GetModule.
-func (mr *MockWasmInstanceWrapperMockRecorder) GetModule() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModule", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).GetModule))
-}
-
-// Acquire mocks base method.
-func (m *MockWasmInstanceWrapper) Acquire(data interface{}) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Acquire", data)
-}
-
-// Acquire indicates an expected call of Acquire.
-func (mr *MockWasmInstanceWrapperMockRecorder) Acquire(data interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Acquire", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).Acquire), data)
-}
-
-// Release mocks base method.
-func (m *MockWasmInstanceWrapper) Release() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Release")
-}
-
-// Release indicates an expected call of Release.
-func (mr *MockWasmInstanceWrapperMockRecorder) Release() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Release", reflect.TypeOf((*MockWasmInstanceWrapper)(nil).Release))
 }
 
 // MockWasmVM is a mock of WasmVM interface.
@@ -957,6 +710,30 @@ func (m *MockWasmInstance) SetData(data interface{}) {
 func (mr *MockWasmInstanceMockRecorder) SetData(data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetData", reflect.TypeOf((*MockWasmInstance)(nil).SetData), data)
+}
+
+// Acquire mocks base method.
+func (m *MockWasmInstance) Acquire(data interface{}) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Acquire", data)
+}
+
+// Acquire indicates an expected call of Acquire.
+func (mr *MockWasmInstanceMockRecorder) Acquire(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Acquire", reflect.TypeOf((*MockWasmInstance)(nil).Acquire), data)
+}
+
+// Release mocks base method.
+func (m *MockWasmInstance) Release() {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Release")
+}
+
+// Release indicates an expected call of Release.
+func (mr *MockWasmInstanceMockRecorder) Release() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Release", reflect.TypeOf((*MockWasmInstance)(nil).Release))
 }
 
 // GetModule mocks base method.

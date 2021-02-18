@@ -62,6 +62,8 @@ type Exports interface {
 }
 
 type InstanceCallback interface {
+	GetRootContextID() int32
+
 	GetVmConfig() buffer.IoBuffer
 	GetPluginConfig() buffer.IoBuffer
 
@@ -77,6 +79,10 @@ type InstanceCallback interface {
 }
 
 type DefaultInstanceCallback struct{}
+
+func (d *DefaultInstanceCallback) GetRootContextID() int32 {
+	return 0
+}
 
 func (d *DefaultInstanceCallback) GetVmConfig() buffer.IoBuffer {
 	return nil

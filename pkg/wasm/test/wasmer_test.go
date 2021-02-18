@@ -83,6 +83,10 @@ func newMockInstanceCallback(ctrl *gomock.Controller) *mockInstanceCallback {
 	}
 }
 
+func (i *mockInstanceCallback) GetRootContextID() int32 {
+	return 0
+}
+
 func (i *mockInstanceCallback) GetVmConfig() buffer.IoBuffer {
 	return i.vmConfig
 }
@@ -151,15 +155,15 @@ func testCommon(t *testing.T, pluginName string, engine string, path string) {
 	plugin := manager.GetWasmPluginWrapperByName(pluginName).GetPlugin()
 	instance := plugin.GetInstance()
 
+	abi := abi.GetABI(instance, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
+
 	cb := newMockInstanceCallback(ctrl)
+	abi.SetImports(cb)
 
-	instance.Acquire(cb)
+	exports := abi.GetExports().(proxywasm_0_1_0.Exports)
+
+	instance.Acquire(abi)
 	defer instance.Release()
-
-	proxyWasm := abi.GetABI("proxy_abi_version_0_1_0")
-	proxyWasm.SetInstance(instance)
-
-	exports := proxyWasm.(proxywasm_0_1_0.Exports)
 
 	rootContextID := 100
 	contextID := 101
@@ -213,17 +217,17 @@ func benchCommon(b *testing.B, pluginName string, engine string, path string) {
 		InstanceNum: runtime.NumCPU(),
 	})
 
-	cb := newMockInstanceCallback(ctrl)
-
 	plugin := manager.GetWasmPluginWrapperByName(pluginName).GetPlugin()
 	instance := plugin.GetInstance()
 
-	proxyWasm := abi.GetABI("proxy_abi_version_0_1_0")
-	proxyWasm.SetInstance(instance)
+	abi := abi.GetABI(instance, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
 
-	exports := proxyWasm.(proxywasm_0_1_0.Exports)
+	cb := newMockInstanceCallback(ctrl)
+	abi.SetImports(cb)
 
-	instance.Acquire(cb)
+	exports := abi.GetExports().(proxywasm_0_1_0.Exports)
+
+	instance.Acquire(abi)
 
 	rootContextID := 100
 	_ = exports.ProxyOnContextCreate(int32(rootContextID), 0)
@@ -233,7 +237,7 @@ func benchCommon(b *testing.B, pluginName string, engine string, path string) {
 	instance.Release()
 
 	for i := 0; i < b.N; i++ {
-		instance.Acquire(cb)
+		instance.Acquire(abi)
 
 		contextID := 101 + i
 		_ = exports.ProxyOnContextCreate(int32(contextID), int32(rootContextID))
