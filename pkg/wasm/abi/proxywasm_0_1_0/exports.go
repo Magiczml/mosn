@@ -21,10 +21,7 @@ import "mosn.io/mosn/pkg/log"
 
 func (a *abiImpl) waitAsyncHttpCallout() {
 	if a.httpCallout != nil && a.httpCallout.asyncRetChan != nil {
-		_, ok := <-a.httpCallout.asyncRetChan
-		if !ok {
-			log.DefaultLogger.Infof("[proxywasm_0_1_0][export] waitAsyncCallout channel close")
-		}
+		<-a.httpCallout.asyncRetChan
 	}
 }
 
@@ -437,70 +434,6 @@ func (a *abiImpl) ProxyOnHttpCallResponse(contextId int32, token int32, headers 
 	}
 
 	_, err = ff.Call(contextId, token, headers, bodySize, trailers)
-
-	return err
-}
-
-func (a *abiImpl) ProxyOnGrpcReceiveInitialMetadata(contextId int32, token int32, headers int32) error {
-	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
-		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcReceiveInitialMetadata")
-	}
-
-	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_receive_initial_metadata")
-	if err != nil {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][export] WasmerInstance fail to get export func: proxy_on_grpc_receive_initial_metadata, err: %v", err)
-		return err
-	}
-
-	_, err = ff.Call(contextId, token, headers)
-
-	return err
-}
-
-func (a *abiImpl) ProxyOnGrpcTrailingMetadata(contextId int32, token int32, trailers int32) error {
-	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
-		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcTrailingMetadata")
-	}
-
-	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_trailing_metadata")
-	if err != nil {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][export] WasmerInstance fail to get export func: proxy_on_grpc_trailing_metadata, err: %v", err)
-		return err
-	}
-
-	_, err = ff.Call(contextId, token, trailers)
-
-	return err
-}
-
-func (a *abiImpl) ProxyOnGrpcReceive(contextId int32, token int32, responseSize int32) error {
-	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
-		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcReceive")
-	}
-
-	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_receive")
-	if err != nil {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][export] WasmerInstance fail to get export func: proxy_on_grpc_receive, err: %v", err)
-		return err
-	}
-
-	_, err = ff.Call(contextId, token, responseSize)
-
-	return err
-}
-
-func (a *abiImpl) ProxyOnGrpcClose(contextId int32, token int32, statusCode int32) error {
-	if log.DefaultLogger.GetLogLevel() >= log.DEBUG {
-		log.DefaultLogger.Debugf("[proxywasm_0_1_0][export] WasmerInstance ProxyOnGrpcClose")
-	}
-
-	ff, err := a.instance.GetExportsFunc("proxy_on_grpc_close")
-	if err != nil {
-		log.DefaultLogger.Errorf("[proxywasm_0_1_0][export] WasmerInstance fail to get export func: proxy_on_grpc_close, err: %v", err)
-		return err
-	}
-
-	_, err = ff.Call(contextId, token, statusCode)
 
 	return err
 }

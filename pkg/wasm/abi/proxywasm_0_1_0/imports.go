@@ -496,6 +496,8 @@ func (hs *httpStruct) AsyncHttpCall(timeoutMilliseconds int, u *url.URL,
 	notHaveData := body == nil || body.Len() == 0
 	notHaveTrailer := trailer == nil
 
+	hs.asyncRetChan = make(chan struct{}, 1)
+
 	err = hs.streamSender.AppendHeaders(hs.ctx, header, notHaveData && notHaveTrailer)
 	if err != nil {
 		log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] AsyncHttpCall AppendHeaders fail, err: %v", err)
@@ -518,8 +520,6 @@ func (hs *httpStruct) AsyncHttpCall(timeoutMilliseconds int, u *url.URL,
 		}
 	}
 
-	hs.asyncRetChan = make(chan struct{}, 1)
-
 	return nil
 }
 
@@ -530,8 +530,9 @@ type proxyHttpConnEventListener struct {
 
 func (p *proxyHttpConnEventListener) OnEvent(event api.ConnectionEvent) {
 	log.DefaultLogger.Infof("[proxywasm_0_1_0][imports] httpCall OnEvent: %v", event)
-	if event.IsClose() {
+	if p.httpStruct.asyncRetChan != nil {
 		close(p.httpStruct.asyncRetChan)
+		p.httpStruct.asyncRetChan = nil
 	}
 }
 
@@ -546,7 +547,10 @@ func (p *proxyStreamReceiveListener) OnReceive(ctx context.Context, headers api.
 	}
 
 	defer func() {
-		p.httpStruct.asyncRetChan <- struct{}{}
+		if p.httpStruct.asyncRetChan != nil {
+			close(p.httpStruct.asyncRetChan)
+			p.httpStruct.asyncRetChan = nil
+		}
 	}()
 
 	rootContextID := abi.imports.GetRootContextID()
@@ -563,7 +567,10 @@ func (p *proxyStreamReceiveListener) OnReceive(ctx context.Context, headers api.
 
 func (p *proxyStreamReceiveListener) OnDecodeError(ctx context.Context, err error, headers api.HeaderMap) {
 	log.DefaultLogger.Errorf("[proxywasm_0_1_0][imports] httpCall OnDecodeError, err: %v", err)
-	p.httpStruct.asyncRetChan <- struct{}{}
+	if p.httpStruct.asyncRetChan != nil {
+		close(p.httpStruct.asyncRetChan)
+		p.httpStruct.asyncRetChan = nil
+	}
 }
 
 var httpCalloutID int32 = 0

@@ -170,7 +170,8 @@ func (w *Instance) RegisterFunc(namespace string, funcName string, f interface{}
 	}
 
 	// the first arg should be types.WasmInstance
-	if funcType.In(0).Kind() != reflect.Interface || !funcType.In(0).Implements(reflect.TypeOf((*types.WasmInstance)(nil)).Elem()) {
+	if funcType.In(0).Kind() != reflect.Interface ||
+		!funcType.In(0).Implements(reflect.TypeOf((*types.WasmInstance)(nil)).Elem()) {
 		log.DefaultLogger.Errorf("[wasmer][instance] RegisterFunc the first arg of f is not types.WasmInstance, actual type: %v", funcType.In(0))
 		return ErrRegisterArgType
 	}

@@ -53,11 +53,6 @@ type Exports interface {
 
 	ProxyOnHttpCallResponse(contextId int32, token int32, headers int32, bodySize int32, trailers int32) error
 
-	ProxyOnGrpcReceiveInitialMetadata(contextId int32, token int32, headers int32) error
-	ProxyOnGrpcTrailingMetadata(contextId int32, token int32, trailers int32) error
-	ProxyOnGrpcReceive(contextId int32, token int32, responseSize int32) error
-	ProxyOnGrpcClose(contextId int32, token int32, statusCode int32) error
-
 	ProxyOnQueueReady(rootContextId int32, token int32) error
 }
 
@@ -93,7 +88,22 @@ func (d *DefaultInstanceCallback) GetPluginConfig() buffer.IoBuffer {
 }
 
 func (d *DefaultInstanceCallback) Log(level log.Level, msg string) {
-	return
+	logFunc := log.DefaultLogger.Infof
+	switch level {
+	case log.TRACE:
+		logFunc = log.DefaultLogger.Tracef
+	case log.DEBUG:
+		logFunc = log.DefaultLogger.Debugf
+	case log.INFO:
+		logFunc = log.DefaultLogger.Infof
+	case log.WARN:
+		logFunc = log.DefaultLogger.Warnf
+	case log.ERROR:
+		logFunc = log.DefaultLogger.Errorf
+	case log.FATAL:
+		logFunc = log.DefaultLogger.Errorf
+	}
+	logFunc(msg)
 }
 
 func (d *DefaultInstanceCallback) GetHttpRequestHeader() api.HeaderMap {

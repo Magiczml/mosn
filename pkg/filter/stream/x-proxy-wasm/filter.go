@@ -32,7 +32,7 @@ import (
 )
 
 type Filter struct {
-	proxywasm_0_1_0.InstanceCallback
+	proxywasm_0_1_0.DefaultInstanceCallback
 
 	ctx context.Context
 
@@ -59,7 +59,7 @@ var contextIDGenerator int32
 func NewFilter(ctx context.Context, pluginName string, rootContextID int32, factory *FilterConfigFactory) *Filter {
 	pluginWrapper := wasm.GetWasmManager().GetWasmPluginWrapperByName(pluginName)
 	if pluginWrapper == nil {
-		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] OnReceive wasm plugin not exists, plugin name: %v", pluginName)
+		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] NewFilter wasm plugin not exists, plugin name: %v", pluginName)
 		return nil
 	}
 
@@ -78,7 +78,7 @@ func NewFilter(ctx context.Context, pluginName string, rootContextID int32, fact
 
 	filter.abi = abi.GetABI(instance, proxywasm_0_1_0.ProxyWasmABI_0_1_0)
 	if filter.abi == nil {
-		log.DefaultLogger.Errorf("")
+		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] NewFilter abi not found in instance")
 		plugin.ReleaseInstance(instance)
 		return nil
 	}
@@ -87,7 +87,7 @@ func NewFilter(ctx context.Context, pluginName string, rootContextID int32, fact
 
 	filter.exports = filter.abi.GetExports().(proxywasm_0_1_0.Exports)
 	if filter.exports == nil {
-		log.DefaultLogger.Errorf("")
+		log.DefaultLogger.Errorf("[x-proxy-wasm][filter] NewFilter fail to get exports part from abi")
 		plugin.ReleaseInstance(instance)
 		return nil
 	}
@@ -169,25 +169,6 @@ func (f *Filter) GetVmConfig() buffer.IoBuffer {
 
 func (f *Filter) GetPluginConfig() buffer.IoBuffer {
 	return f.factory.GetPluginConfig()
-}
-
-func (f *Filter) Log(level log.Level, msg string) {
-	logFunc := log.DefaultLogger.Infof
-	switch level {
-	case log.TRACE:
-		logFunc = log.DefaultLogger.Tracef
-	case log.DEBUG:
-		logFunc = log.DefaultLogger.Debugf
-	case log.INFO:
-		logFunc = log.DefaultLogger.Infof
-	case log.WARN:
-		logFunc = log.DefaultLogger.Warnf
-	case log.ERROR:
-		logFunc = log.DefaultLogger.Errorf
-	case log.FATAL:
-		logFunc = log.DefaultLogger.Fatalf
-	}
-	logFunc(msg)
 }
 
 func (f *Filter) GetHttpRequestHeader() api.HeaderMap {

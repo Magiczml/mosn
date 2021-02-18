@@ -19,6 +19,10 @@ package x_proxy_wasm
 
 import (
 	"context"
+	"net/http"
+	"sync"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"mosn.io/api"
@@ -26,8 +30,6 @@ import (
 	_ "mosn.io/mosn/pkg/stream/http"
 	_ "mosn.io/mosn/pkg/wasm/runtime/wasmer"
 	"mosn.io/pkg/buffer"
-	"sync"
-	"testing"
 )
 
 func mockHeaderMap(ctrl *gomock.Controller) api.HeaderMap {
@@ -72,9 +74,7 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 		"instance_num": 2,
 		"vm_config": map[string]interface{}{
 			"engine": "wasmer",
-			"path":   "./data/httpCall.wasm",
-			"cpu":    50,
-			"mem":    50,
+			"path":   "./data/test.wasm",
 		},
 		"root_context_id": 1,
 		"user_config1":    "user_value1",
@@ -89,7 +89,7 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < 1; i++ {
+	for i := 0; i < 5; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -135,4 +135,57 @@ func TestProxyWasmStreamFilter(t *testing.T) {
 	}
 
 	wg.Wait()
+}
+
+func TestProxyWasmStreamFilterHttpCallout(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	server := http.Server{Addr: ":22164"}
+	defer server.Close()
+
+	go func() {
+		http.HandleFunc("/haha", func(writer http.ResponseWriter, request *http.Request) {
+			writer.WriteHeader(http.StatusOK)
+			writer.Write([]byte("response from external server"))
+		})
+		server.ListenAndServe()
+	}()
+
+	configMap := map[string]interface{}{
+		"instance_num": 1,
+		"vm_config": map[string]interface{}{
+			"engine": "wasmer",
+			"path":   "./data/httpCall.wasm",
+		},
+		"root_context_id": 1,
+	}
+
+	factory, err := createProxyWasmFilterFactory(configMap)
+	if err != nil || factory == nil {
+		t.Errorf("fail to create filter factory")
+		return
+	}
+
+	var rFilter api.StreamReceiverFilter
+
+	cb := mock.NewMockStreamFilterChainFactoryCallbacks(ctrl)
+	cb.EXPECT().AddStreamReceiverFilter(gomock.Any(), gomock.Any()).Do(func(receiverFilter api.StreamReceiverFilter, p api.ReceiverFilterPhase) {
+		assert.Equal(t, p, api.BeforeRoute, "add receiver filter at wrong phase")
+		rFilter = receiverFilter
+	}).AnyTimes()
+	cb.EXPECT().AddStreamSenderFilter(gomock.Any(), gomock.Any()).AnyTimes().Return()
+
+	factory.CreateFilterChain(context.TODO(), cb)
+
+	reqHeaderMap := mockHeaderMap(ctrl)
+	reqBody := buffer.NewIoBufferString("request body")
+
+	receiverHandler := mock.NewMockStreamReceiverFilterHandler(ctrl)
+	receiverHandler.EXPECT().GetRequestHeaders().AnyTimes().Return(reqHeaderMap)
+	receiverHandler.EXPECT().GetRequestData().AnyTimes().Return(reqBody)
+
+	rFilter.SetReceiveFilterHandler(receiverHandler)
+	rFilter.OnReceive(context.TODO(), reqHeaderMap, reqBody, nil)
+	rFilter.OnDestroy()
 }
